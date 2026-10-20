@@ -1605,6 +1605,23 @@ function dataPage() {
       desc: "Share of gross pay withheld for federal tax, state tax and FICA in all 51 US jurisdictions, computed at each jurisdiction's own median household income. Free CSV and JSON.",
       slug,
       breadcrumb: [{ name: "Home", href: "/" }, { name: "Open data", href: slug }],
+      extraHead: jsonld({
+        "@context": "https://schema.org",
+        "@type": "Dataset",
+        name: "US paycheck withholding by state, 2026",
+        description: "Share of gross pay withheld for federal income tax, state income tax and FICA in all 51 US jurisdictions, computed at each jurisdiction's own median household income.",
+        url: SITE + slug,
+        temporalCoverage: String(params.meta.tax_year),
+        spatialCoverage: "United States",
+        isAccessibleForFree: true,
+        creator: { "@type": "Organization", name: "Paycheck Math", url: SITE + "/" },
+        license: "https://creativecommons.org/licenses/by/4.0/",
+        distribution: [
+          { "@type": "DataDownload", encodingFormat: "text/csv", contentUrl: SITE + "/data/paycheck-tax-by-state.csv" },
+          { "@type": "DataDownload", encodingFormat: "application/json", contentUrl: SITE + "/data/paycheck-tax-by-state.json" },
+        ],
+        variableMeasured: ["median household income", "federal income tax", "state income tax", "FICA", "take-home pay"],
+      }),
       body: `
 <p class="crumb"><a href="/">Home</a> › Open data</p>
 <h1>US Paycheck Tax by State — Open Dataset</h1>

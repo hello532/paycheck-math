@@ -1205,7 +1205,95 @@ ${peerRows}
 </tbody></table>`;
 }
 
-/* ── assemble ────────────────────────────────────────────────────────── */
+const SALARY_STATES = ["CA", "TX", "NY", "IL", "GA", "NJ", "MA", "MI", "NC"];
+const SALARY_STATE_VALUES = [30000, 40000, 45000, 50000, 55000, 60000, 65000, 70000, 75000, 80000, 85000, 90000, 100000, 110000, 120000, 150000];
+
+function salaryStatePage(amount, code) {
+  const st = params.states[code];
+  const c = computePaycheck(params, amount, code, "single");
+  const tx = computePaycheck(params, amount, "TX", "single");
+  const d = stateIncome.byState[st.name];
+  const slug = `/${amount}-a-year-after-taxes-in-${stateSlug(code)}/`;
+  const pos = bracketPosition(amount, code);
+  const netMonthly = c.net / 12;
+  return {
+    slug,
+    html: layout({
+      title: `$${amount.toLocaleString("en-US")} a Year After Taxes in ${st.name}`,
+      desc: `In ${st.name}, $${amount.toLocaleString("en-US")} a year leaves about ${fmt(c.net)} after federal tax, ${st.type === "none" ? "no state income tax" : st.name + " income tax"} and FICA — ${fmt(netMonthly)} a month.`,
+      slug,
+      breadcrumb: [
+        { name: "Home", href: "/" },
+        { name: `$${amount.toLocaleString("en-US")} after taxes`, href: `/${amount}-a-year-after-taxes/` },
+        { name: st.name, href: slug },
+      ],
+      faq: [
+        {
+          q: `How much is $${amount.toLocaleString("en-US")} after taxes in ${st.name}?`,
+          a: `About ${fmt(c.net)} a year, or ${fmt(netMonthly)} a month, for a single filer with the ${params.meta.tax_year} federal standard deduction and no other pre-tax deductions.`,
+        },
+        {
+          q: `How much state tax do you pay on $${amount.toLocaleString("en-US")} in ${st.name}?`,
+          a: st.type === "none"
+            ? `${st.name} has no wage income tax, so the state figure is zero. Federal income tax of ${fmt(c.federalTax)} and FICA of ${fmt(c.fica)} still apply.`
+            : `About ${fmt(c.stateTax)}, which is ${pct(c.stateTax / amount)} of the gross salary.`,
+        },
+      ],
+      body: `
+<p class="crumb"><a href="/">Home</a> › <a href="/${amount}-a-year-after-taxes/">$${amount.toLocaleString("en-US")} after taxes</a> › ${esc(st.name)}</p>
+<h1>$${amount.toLocaleString("en-US")} a Year After Taxes in ${esc(st.name)}</h1>
+<p class="lede">After federal income tax, ${st.type === "none" ? "no state income tax" : `${esc(st.name)} income tax`} and FICA, a single filer on $${amount.toLocaleString("en-US")} in ${esc(st.name)} keeps <strong>${fmt(c.net)}</strong> — ${fmt(netMonthly)} a month, ${fmt(c.net / 26)} per biweekly check.</p>
+<div class="grid3">
+  <div class="card"><div class="k">Take-home / year</div><div class="v">${fmt(c.net)}</div></div>
+  <div class="card"><div class="k">Take-home / month</div><div class="v">${fmt(netMonthly)}</div></div>
+  <div class="card"><div class="k">Effective rate</div><div class="v">${pct(c.effectiveRate)}</div></div>
+</div>
+
+<h2>The four deductions</h2>
+<table>
+<thead><tr><th>Item</th><th class="num">Per year</th><th class="num">Per month</th></tr></thead>
+<tbody>
+<tr><td>Gross</td><td class="num">${fmt(amount)}</td><td class="num">${fmt(amount / 12)}</td></tr>
+<tr><td>Federal income tax</td><td class="num">−${fmt(c.federalTax)}</td><td class="num">−${fmt(c.federalTax / 12)}</td></tr>
+<tr><td>${esc(st.name)} income tax</td><td class="num">${c.stateTax === 0 ? "0" : "−" + fmt(c.stateTax)}</td><td class="num">${c.stateTax === 0 ? "0" : "−" + fmt(c.stateTax / 12)}</td></tr>
+<tr><td>Social Security + Medicare</td><td class="num">−${fmt(c.fica)}</td><td class="num">−${fmt(c.fica / 12)}</td></tr>
+<tr><td><strong>Take-home</strong></td><td class="num"><strong>${fmt(c.net)}</strong></td><td class="num"><strong>${fmt(netMonthly)}</strong></td></tr>
+</tbody></table>
+<div class="note">${
+  st.type === "none"
+    ? `${esc(st.name)} is one of ${NO_TAX_STATES.length} states with no wage income tax, so this figure is identical in ${NO_TAX_STATES.filter((x) => x !== code).map((x) => params.states[x].name).join(", ")}. The comparison that matters is against a state that does tax wages: California on the same salary nets ${fmt(computePaycheck(params, amount, "CA", "single").net)}.`
+    : `The same ${amount.toLocaleString("en-US")} in Texas, which has no wage income tax, nets ${fmt(tx.net)} — ${c.net >= tx.net ? `${fmt(c.net - tx.net)} more` : `${fmt(tx.net - c.net)} less`} than ${esc(st.name)}.`
+}</div>
+
+<h2>Where this salary sits in ${esc(st.name)}</h2>
+<p>You keep ${pct(c.net / amount)} of gross. Your top federal bracket is ${pct(pos.fedRate)}${st.type === "brackets" && pos.stRate ? `, and the state bracket at this income is ${pct(pos.stRate)}` : st.type === "none" ? " and there is no state bracket" : ` and the state rate is a flat ${pct(st.rate)}`}. ${d ? `That ${fmt(amount)} gross is ${(amount / d.median * 100).toFixed(0)}% of ${esc(st.name)}'s ${fmt(d.median)} median household income.` : ""}</p>
+<table>
+<thead><tr><th>Monthly budget at ${fmt(netMonthly)} net</th><th class="num">50/30/20 rule</th></tr></thead>
+<tbody>
+<tr><td>Needs</td><td class="num">${fmt(netMonthly * 0.5)}</td></tr>
+<tr><td>Wants</td><td class="num">${fmt(netMonthly * 0.3)}</td></tr>
+<tr><td>Savings or debt</td><td class="num">${fmt(netMonthly * 0.2)}</td></tr>
+</tbody></table>
+
+${adsSlot()}
+${uniqueFactsBlock({ gross: amount, state: code })}
+${stateSpecificBlock(code, amount)}
+
+<h2>Other states at $${amount.toLocaleString("en-US")}</h2>
+<ul class="links">
+${SALARY_STATES.filter((x) => x !== code)
+  .map((x) => `<li><a href="/${amount}-a-year-after-taxes-in-${stateSlug(x)}/">${esc(params.states[x].name)}</a></li>`)
+  .join("\n")}
+</ul>
+<p><a href="/${amount}-a-year-after-taxes/">Back to $${amount.toLocaleString("en-US")} after taxes</a></p>
+
+${calculatorBlock({ defaultGross: amount, state: code, heading: "Recalculate" })}
+`,
+    }),
+  };
+}
+
+/* ── assemble ──/* ── assemble ────────────────────────────────────────────────────────── */
 
 const pages = [];
 pages.push(homePage());
@@ -1294,6 +1382,7 @@ for (const code of ["CA", "NY", "IL", "NJ", "GA", "MA"]) {
   for (const r of HOURLY_TAX) pages.push(hourlyStatePage(r, code));
 }
 for (const s of GOOD_SALARIES) pages.push(goodSalaryPage(s));
+for (const amount of SALARY_STATE_VALUES) for (const code of SALARY_STATES) pages.push(salaryStatePage(amount, code));
 
 /* sitemap + robots + llms.txt */
 

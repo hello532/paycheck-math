@@ -43,6 +43,7 @@ const pages = [
   ...collect("", (n) => n.endsWith("-an-hour-is-how-much-a-year")),
   ...collect("", (n) => n.endsWith("-a-year-a-good-salary")),
   ...collect("", (n) => n.includes("-an-hour-after-taxes-in-")),
+  ...collect("", (n) => n.includes("-a-year-after-taxes-in-")),
 ];
 
 const sets = pages.map((p) => ({ name: p.name, s: shingles(p.html) }));

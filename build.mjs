@@ -33,6 +33,37 @@ function jsonld(obj) {
   return `<script type="application/ld+json">${JSON.stringify(obj)}</script>`;
 }
 
+function siteLd(slug, title, desc) {
+  return jsonld({
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": `${SITE}/#website`,
+        "url": `${SITE}/`,
+        "name": "Paycheck Math",
+        "description": "Salary, hourly and take-home pay calculators for the United States.",
+      },
+      {
+        "@type": "Organization",
+        "@id": `${SITE}/#organization`,
+        "name": "Paycheck Math",
+        "url": `${SITE}/`,
+      },
+      {
+        "@type": "WebPage",
+        "@id": `${SITE}${slug}#webpage`,
+        "url": `${SITE}${slug}`,
+        "name": title,
+        "description": desc,
+        "isPartOf": { "@id": `${SITE}/#website` },
+        "about": { "@id": `${SITE}/#organization` },
+        "inLanguage": "en-US",
+      },
+    ],
+  });
+}
+
 function layout({ title, desc, slug, body, breadcrumb, faq, extraHead = "" }) {
   const url = SITE + slug;
   const crumbs = breadcrumb || [];
@@ -77,6 +108,7 @@ function layout({ title, desc, slug, body, breadcrumb, faq, extraHead = "" }) {
 <link rel="stylesheet" href="/assets/style.css">
 ${crumbLd}
 ${faqLd}
+${siteLd(slug, title, desc)}
 ${extraHead}
 ${ADSENSE_HEAD}
 </head>

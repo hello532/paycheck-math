@@ -1,0 +1,67 @@
+{
+  "base": "https://paycheck-math.pages.dev",
+  "date": "2026-10-20",
+  "checks": [
+    {
+      "name": "sitemap urls",
+      "ok": true,
+      "detail": "811 urls"
+    },
+    {
+      "name": "sitemap host",
+      "ok": true,
+      "detail": "all urls on the live host"
+    },
+    {
+      "name": "sampled pages 200",
+      "ok": true,
+      "detail": "74 ok"
+    },
+    {
+      "name": "unknown url returns 404",
+      "ok": true,
+      "detail": "404"
+    },
+    {
+      "name": "canonical on live host",
+      "ok": true,
+      "detail": "https://paycheck-math.pages.dev/"
+    },
+    {
+      "name": "title under 60",
+      "ok": true,
+      "detail": "60"
+    },
+    {
+      "name": "meta description under 160",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "json-ld present",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "robots points to sitemap",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "engine federal tax 65k CA single = 5620",
+      "ok": true,
+      "detail": "5620.00"
+    },
+    {
+      "name": "engine SS capped at wage base",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "all 51 jurisdictions present",
+      "ok": true,
+      "detail": "51"
+    }
+  ],
+  "failures": []
+}

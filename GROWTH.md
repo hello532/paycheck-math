@@ -128,9 +128,9 @@ that host, canonical tags rewritten to match, calculator verified working under 
 
 Redeploy: `sh deploy-ghpages.sh`. Health: `SITE_ORIGIN=https://hello532.github.io BASE_PATH=/paycheck-math node tools/health.mjs`.
 
-IndexNow returned 403 `SiteVerificationNotCompleted` for the GitHub Pages subpath — verification
-for a shared domain takes time. It accepted the Cloudflare-hostname submission earlier, so once
-the domain moves back to `pay.rerivo.com` that channel works again.
+IndexNow initially returned 403 `SiteVerificationNotCompleted` for the GitHub Pages subpath, then
+accepted all 1,232 URLs (HTTP 200) once verification completed. Both Bing and Yandex receive the
+full list.
 
 ## Deploy is blocked on Cloudflare credentials
 

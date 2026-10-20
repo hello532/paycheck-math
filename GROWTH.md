@@ -56,28 +56,49 @@ not a claim about the present.
 
 ## Revenue wiring
 
-- AdSense: build with `ADSENSE_CLIENT=ca-pub-XXXX node build.mjs` to emit the loader and one
+- **AdSense**: build with `ADSENSE_CLIENT=ca-pub-XXXX node build.mjs` to emit the loader and one
   in-article unit per page. Without the variable the pages ship a neutral placeholder and no
-  third-party script. Nothing is injected until an approved publisher ID exists.
-- Affiliate candidates that fit the query intent: tax software (TurboTax/FreeTaxUSA), H&R Block,
-  and high-yield savings accounts on the after-tax pages. Links are not placed yet because an
-  unapproved affiliate link earns nothing and dilutes trust; they go in once one program is
-  approved.
+  third-party script. Verified both paths: with the variable the page contains the `adsbygoogle`
+  loader and unit, without it nothing is injected. Nothing is live until an approved publisher ID
+  exists — that application is the user's (it needs their identity and a live domain).
+- **RPM reference**: published 2025 AdSense benchmarks put the finance category at roughly
+  $20–$50 page RPM for US traffic (techconda.com benchmark round-up, cited as an industry
+  estimate, not a guarantee). At 100k sessions/month that is a $2k–$5k range; at 1M, $20k–$50k.
+  These are estimates and will be wrong in either direction until real data exists.
+- **Affiliate candidates** that fit the query intent: tax software (TurboTax, FreeTaxUSA, H&R
+  Block) on after-tax pages, and high-yield savings accounts on the take-home pages. Not placed
+  yet: an unapproved affiliate link earns nothing and costs trust. They go in once one program
+  approves the site.
 
 ## Next actions, in order
 
-1. Point a real domain at the Pages project (Cloudflare binding needs DNS write, which the
-   current OAuth token does not have — `zone:read` only).
+1. Point a real domain at the Pages project (see the domain section below).
 2. Submit `sitemap.xml` in Search Console as soon as the domain is live.
-3. Add the second matrix: `hourly × state after tax` (e.g. "$25 an hour after taxes in Texas"),
-   which is the query pattern where the small sites currently rank.
-4. Add `salary after tax by state` pages for the top 20 salary values, then measure.
+3. Apply for AdSense once the domain is live, then rebuild with `ADSENSE_CLIENT`.
+4. Execute steps 1–3 of `EXPANSION.md` (hourly × state, salary × state, pay frequency).
+
+## Milestone math, stated honestly
+
+Nothing here has organic traffic yet — the site was built on 2026-10-20 and the only submission
+is IndexNow (811 URLs, HTTP 200). The honest position:
+
+- A new domain in a competitive finance cluster typically needs 6–12 months before programmatic
+  pages rank for anything commercial. Expect near-zero for the first 8–12 weeks.
+- 100k sessions/month is the realistic first success marker, not 1M. It needs roughly
+  1,500–2,500 indexed pages earning an average of 40–60 sessions each per month.
+- 1M sessions/month needs the full matrix (≈8–10k pages) plus earned links. Links are the
+  binding constraint, not page count — that is why `EXPANSION.md` step 4 is comparison pages and
+  why the next real work after expansion is outreach, not more generation.
+
+What is verified today: 12/12 health checks against the live host, 811 sitemap URLs all on the
+live host, unknown URLs return 404, the tax engine matches hand arithmetic to the cent, and the
+calculator recalculates in a real browser and writes shareable URL state.
 
 ## Snapshot log
 
 | Date | Pages | GSC impressions | GSC clicks | Notes |
 |---|---|---|---|---|
-| 2026-10-20 | 810 | n/a (new site) | n/a | Built and deployed to paycheck-math.pages.dev; 809 URLs accepted by IndexNow (HTTP 200) |
+| 2026-10-20 | 812 | n/a (new site) | n/a | Built and deployed to paycheck-math.pages.dev; 811 sitemap URLs accepted by IndexNow (HTTP 200). Health gate 12/12. No organic traffic yet by design. |
 
 ## Domain — the one thing that needs you
 

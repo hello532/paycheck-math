@@ -113,6 +113,7 @@ ${faqLd}
 ${siteLd(slug, title, desc)}
 ${extraHead}
 ${ADSENSE_HEAD}
+${GA_HEAD}
 </head>
 <body>
 <header class="site"><div class="wrap">
@@ -179,6 +180,12 @@ function adsSlot(label = "Advertisement") {
   }
   return `<div class="ad"><ins class="adsbygoogle" style="display:block" data-ad-client="${esc(pub)}" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>`;
 }
+
+const GA_ID = process.env.GA_MEASUREMENT_ID || "";
+const GA_HEAD = GA_ID
+  ? `<script async src="https://www.googletagmanager.com/gtag/js?id=${GA_ID}"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${GA_ID}');</script>`
+  : "";
 
 const ADSENSE_HEAD = process.env.ADSENSE_CLIENT
   ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${esc(process.env.ADSENSE_CLIENT)}" crossorigin="anonymous"></script>

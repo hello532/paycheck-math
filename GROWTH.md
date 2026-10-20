@@ -118,6 +118,24 @@ calculator recalculates in a real browser and writes shareable URL state.
   detection actually uses. That exposed the real duplicate set: 91 hourly-by-state pairs at
   ~0.81, all between no-wage-tax states.
 
+## Deploy is blocked on Cloudflare credentials
+
+The Cloudflare OAuth token expired 2026-10-20T15:55Z and the stored refresh token is rejected
+(`invalid_client`). `deploy.sh` now exits 2 with a clear message instead of failing inside
+wrangler. Local state is complete and verified; it needs one of:
+
+- `npx wrangler login` once (browser consent), or
+- a `CLOUDFLARE_API_TOKEN` with Pages:Edit in `~/.config/secrets.env`.
+
+The live site is still the 812-page build from before this round. The 1,229-page build
+(442 new salary x state pages, minus 182 removed duplicates) is committed and waiting.
+
+## Analytics
+
+`GA_MEASUREMENT_ID=G-XXXX node build.mjs` emits GA4. Verified both ways: without the variable
+no `googletagmanager` tag is present, with it the page contains exactly one. Nothing is sent
+anywhere until a real property ID exists.
+
 ## Domain — the one thing that needs you
 
 `pay.rerivo.com` is already attached to the Pages project and waiting on DNS. The Cloudflare

@@ -88,6 +88,7 @@ ${ADSENSE_HEAD}
     <a href="/salary-to-hourly/">Salary to hourly</a>
     <a href="/hourly-to-salary/">Hourly to salary</a>
     <a href="/after-taxes/">After taxes</a>
+    <a href="/hourly-after-taxes/">After-tax hourly</a>
   </nav>
 </div></header>
 <main><div class="wrap">
@@ -731,6 +732,14 @@ ${["TX", "FL", "WA", "CA", "NY", "IL", "GA", "NJ"]
   .join("\n")}
 </tbody></table>
 <p><a href="/${rate}-an-hour-after-taxes-in-texas/">$${rate} an hour after taxes in Texas →</a></p>
+<h2>Compare by state</h2>
+<ul class="links">
+  <li><a href="/${rate}-an-hour-after-taxes-in-texas/">$${rate} an hour in Texas</a></li>
+  <li><a href="/${rate}-an-hour-after-taxes-in-california/">$${rate} an hour in California</a></li>
+  <li><a href="/${rate}-an-hour-after-taxes-in-florida/">$${rate} an hour in Florida</a></li>
+  <li><a href="/hourly-after-taxes/">All hourly after-tax pages</a></li>
+  <li><a href="/hourly-after-taxes-by-state/">By state</a></li>
+</ul>
 
 <h2>Monthly and weekly figures</h2>
 <p>Net pay of ${fmt(ca.net)} a year is ${fmt(ca.net / 12)} a month, ${fmt(ca.net / 26)} per biweekly check and ${fmt(ca.net / 52)} a week. A 401(k) contribution of even 5% would remove ${fmt(gross * 0.05)} from the taxable figure before any of this is computed, which lowers the effective rate slightly.</p>
@@ -1002,6 +1011,43 @@ pages.push(
     desc: "Take-home pay for every salary from $20,000 to $300,000, with the federal, state and FICA breakdown.",
   })
 );
+
+pages.push(
+  hubPage({
+    slug: "/hourly-after-taxes/",
+    h1: "Hourly pay after taxes",
+    lede: "What an hourly wage actually pays after federal income tax, state tax and FICA — 40 hours a week, 52 weeks a year.",
+    items: HOURLY.filter((r) => r >= 10 && Number.isInteger(r)).map((r) => ({ href: `/${r}-an-hour-after-taxes/`, label: `$${r} an hour after taxes` })),
+    title: "Hourly Pay After Taxes — take-home per hour",
+    desc: "Take-home pay for hourly wages from $10 to $100 an hour, with federal tax, state tax and FICA per hour, week and month.",
+  })
+);
+
+pages.push({
+  slug: "/hourly-after-taxes-by-state/",
+  html: layout({
+    title: "Hourly Pay After Taxes by State — Texas, California, Florida",
+    desc: "Take-home pay per hour in Texas, California and Florida, from $10 to $100 an hour, with federal tax and FICA included.",
+    slug: "/hourly-after-taxes-by-state/",
+    breadcrumb: [{ name: "Home", href: "/" }, { name: "Hourly after taxes by state", href: "/hourly-after-taxes-by-state/" }],
+    body: `
+<p class="crumb"><a href="/">Home</a> › Hourly after taxes by state</p>
+<h1>Hourly Pay After Taxes, by State</h1>
+<p class="lede">The same hourly wage lands differently depending on where you work. Texas and Florida take no state income tax on wages; California does. Pick a rate to see the exact take-home figure in each.</p>
+${["TX", "CA", "FL"]
+  .map(
+    (code) => `<h2>${esc(params.states[code].name)}</h2>
+<ul class="links">
+${HOURLY.filter((r) => r >= 10 && Number.isInteger(r))
+  .map((r) => `<li><a href="/${r}-an-hour-after-taxes-in-${params.states[code].name.toLowerCase().replace(/\s+/g, "-")}/">$${r} an hour</a></li>`)
+  .join("\n")}
+</ul>`
+  )
+  .join("\n")}
+<p><a href="/hourly-after-taxes/">All hourly after-tax pages →</a> · <a href="/paycheck-calculator/">Paycheck calculator by state →</a></p>
+`,
+  }),
+});
 
 for (const r of HOURLY) pages.push(hourlyPage(r));
 for (const s of SALARIES) pages.push(salaryPage(s));

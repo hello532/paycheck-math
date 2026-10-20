@@ -1428,7 +1428,233 @@ ${calculatorBlock({ defaultGross: 75000, state: "CA", heading: "Your numbers" })
   return out;
 }
 
-/* ── assemble ──/* ── assemble ──/* ── assemble ────────────────────────────────────────────────────────── */
+function incomeLine(gross, d, st) {
+  if (!d) return "";
+  const nat = ((gross / stateIncome.national.median) * 100).toFixed(0);
+  const same = Math.abs(gross - d.median) < 100;
+  const lead = same
+    ? `That gross is the ${esc(st.name)} median household income (${fmt(d.median)}, ${stateIncome.year}), rounded to the nearest hundred.`
+    : `That gross is ${((gross / d.median) * 100).toFixed(0)}% of the ${esc(st.name)} median household income (${fmt(d.median)}, ${stateIncome.year}).`;
+  return `<p>${lead} It is ${nat}% of the national median household income of ${fmt(stateIncome.national.median)}.</p>`;
+}
+
+function burdenLine(pct, st, code, gross, c) {
+  const tone = pct > 0.25 ? "more than a quarter" : pct < 0.18 ? "less than a fifth" : "a little under a quarter";
+  const raise = computePaycheck(params, gross + 5000, code, "single").net - c.net;
+  return `<p>At this level ${esc(st.name)} takes ${tone} of gross pay. A ${fmt(5000)} raise would add about ${fmt(raise)} to take-home, because the marginal rate applies only to the extra.</p>`;
+}
+
+function percentPage(code) {
+  const st = params.states[code];
+  const d = stateIncome.byState[st.name];
+  const { gross, c, pct, fedPct, statePct, ficaPct } = stateWithholdingRate(code);
+  const slug = `/what-percentage-of-paycheck-goes-to-taxes-in-${stateSlug(code)}/`;
+  return {
+    slug,
+    html: layout({
+      title: `What Percentage of a ${st.name} Paycheck Goes to Taxes?`,
+      desc: `About ${pct_full(pct)} of a ${fmt(gross)} paycheck in ${st.name} goes to federal tax, state tax and FICA. See the split and what lowers it.`,
+      slug,
+      breadcrumb: [{ name: "Home", href: "/" }, { name: "Percent of paycheck to taxes", href: slug }],
+      faq: [
+        { q: `What percentage of your paycheck goes to taxes in ${st.name}?`, a: `About ${pct_full(pct)} at a ${fmt(gross)} salary: ${pct_full(fedPct)} federal, ${pct_full(statePct)} state and ${pct_full(ficaPct)} FICA.` },
+        { q: `Is that percentage higher for a bigger salary?`, a: `Yes, slowly. Federal brackets are progressive, so the share rises with income while FICA stays flat at 7.65% up to the wage base.` },
+      ],
+      body: `
+<p class="crumb"><a href="/">Home</a> › Percent of paycheck to taxes</p>
+<h1>What Percentage of a ${esc(st.name)} Paycheck Goes to Taxes?</h1>
+<p class="lede">At a typical ${esc(st.name)} salary of <strong>${fmt(gross)}</strong>, a single filer loses <strong>${pct_full(pct)}</strong> to taxes and keeps ${fmt(c.net)}. The percentage is not one number — it is three, and they behave differently.</p>
+<div class="grid3">
+  <div class="card"><div class="k">To taxes</div><div class="v">${pct_full(pct)}</div></div>
+  <div class="card"><div class="k">You keep</div><div class="v">${pct_full(1 - pct)}</div></div>
+  <div class="card"><div class="k">Net / month</div><div class="v">${fmt(c.net / 12)}</div></div>
+</div>
+
+<h2>The percentage, line by line</h2>
+<table>
+<thead><tr><th>Line</th><th class="num">Rate on gross</th><th class="num">Amount</th></tr></thead>
+<tbody>
+<tr><td>Federal income tax</td><td class="num">${pct_full(fedPct)}</td><td class="num">${fmt(c.federalTax)}</td></tr>
+<tr><td>${esc(st.name)} income tax</td><td class="num">${pct_full(statePct)}</td><td class="num">${c.stateTax === 0 ? "$0" : fmt(c.stateTax)}</td></tr>
+<tr><td>Social Security</td><td class="num">${pct_full(c.socialSecurity / gross)}</td><td class="num">${fmt(c.socialSecurity)}</td></tr>
+<tr><td>Medicare</td><td class="num">${pct_full(c.medicare / gross)}</td><td class="num">${fmt(c.medicare)}</td></tr>
+<tr><td><strong>Total</strong></td><td class="num"><strong>${pct_full(pct)}</strong></td><td class="num"><strong>${fmt(c.totalTax)}</strong></td></tr>
+</tbody></table>
+<p>Two of those lines are flat nationwide: Social Security at 6.2% and Medicare at 1.45%. The federal line is progressive, so its <em>effective</em> rate (${pct_full(fedPct)}) is well below the bracket you are in. The state line is what makes ${esc(st.name)} different from its neighbours.</p>
+
+${adsSlot()}
+
+<h2>How the percentage changes with income</h2>
+<p>The same ${esc(st.name)} rules applied at five salary levels. Notice the share creeps up rather than jumping:</p>
+<table>
+<thead><tr><th>Gross salary</th><th class="num">To taxes</th><th class="num">You keep</th></tr></thead>
+<tbody>
+${[0.5, 0.75, 1, 1.5, 2].map((f) => {
+  const g = Math.round(gross * f / 100) * 100;
+  const r = computePaycheck(params, g, code, "single");
+  return `<tr><td>${fmt(g)}</td><td class="num">${pct_full(r.totalTax / g)}</td><td class="num">${fmt(r.net)}</td></tr>`;
+}).join("\n")}
+</tbody></table>
+
+<h2>What ${fmt(gross)} means in ${esc(st.name)}</h2>
+${incomeLine(gross, d, st)}
+<p>After every deduction you keep <strong>${fmt(c.net)}</strong> a year — ${fmt(c.net / 12)} a month, ${fmt(c.net / 26)} per biweekly check. Rent at the common 30%-of-gross rule would take ${fmt(gross * 0.3 / 12)} a month, leaving ${fmt(c.net / 12 - gross * 0.3 / 12)}.</p>
+${burdenLine(pct, st, code, gross, c)}
+
+<h2>How to lower the percentage</h2>
+<p>Pre-tax deductions come off before federal income tax: a 401(k), a health premium or an HSA. None of them reduce FICA, so the saving is real but partial. Putting 5% of ${fmt(gross)} into a 401(k) removes ${fmt(gross * 0.05)} from the federal taxable base, roughly ${fmt(gross * 0.05 * 0.22)} of federal tax at this income. Filing jointly, a dependent-care account and the earned income credit change the result too.</p>
+
+${calculatorBlock({ defaultGross: gross, state: code, heading: "Your numbers" })}
+
+<h2>Related</h2>
+<ul class="links">
+  <li><a href="/how-much-tax-is-taken-out-of-paycheck-in-${stateSlug(code)}/">How much is taken out in ${esc(st.name)}</a></li>
+  <li><a href="/paycheck-calculator/${code.toLowerCase()}/">${esc(st.name)} paycheck calculator</a></li>
+  <li><a href="/what-percentage-of-paycheck-goes-to-taxes/">All states</a></li>
+</ul>
+`,
+    }),
+  };
+}
+
+function withholdingHubPage() {
+  const rows = TAX_PAGE_STATES.map((c) => ({ c, name: params.states[c].name, pct: stateWithholdingRate(c).pct })).sort((a, b) => a.pct - b.pct);
+  return {
+    slug: "/how-much-tax-is-taken-out-of-paycheck/",
+    html: layout({
+      title: "How Much Tax Is Taken Out of a Paycheck? Every State",
+      desc: "Paycheck withholding by state, computed at each state's median salary: federal tax, state tax and FICA, lowest to highest.",
+      slug: "/how-much-tax-is-taken-out-of-paycheck/",
+      breadcrumb: [{ name: "Home", href: "/" }, { name: "Tax taken out of paycheck", href: "/how-much-tax-is-taken-out-of-paycheck/" }],
+      body: `
+<p class="crumb"><a href="/">Home</a> › Tax taken out of a paycheck</p>
+<h1>How Much Tax Is Taken Out of a Paycheck?</h1>
+<p class="lede">The answer depends on the state, but less than most people expect: FICA is identical everywhere and the federal line is identical too. Only the state line moves. Each figure below is computed at that state's own median household income, so it reflects a typical local paycheck.</p>
+<table>
+<thead><tr><th>#</th><th>State</th><th class="num">Withheld</th><th class="num">Detail</th></tr></thead>
+<tbody>
+${rows.map((r, i) => `<tr><td>${i + 1}</td><td><a href="/how-much-tax-is-taken-out-of-paycheck-in-${stateSlug(r.c)}/">${esc(r.name)}</a></td><td class="num">${pct_full(r.pct)}</td><td class="num">${fmt(stateWithholdingRate(r.c).c.totalTax)}</td></tr>`).join("\n")}
+</tbody></table>
+<p>The range runs from ${pct_full(rows[0].pct)} to ${pct_full(rows[rows.length - 1].pct)} — about ${pct_full(rows[rows.length - 1].pct - rows[0].pct)} of gross pay between the lightest and heaviest state.</p>
+<h2>Other states</h2>
+<ul class="links">
+${rows.slice(0, 12).map((r) => `<li><a href="/what-percentage-of-paycheck-goes-to-taxes-in-${stateSlug(r.c)}/">${esc(r.name)}</a></li>`).join("\n")}
+</ul>
+<p><a href="/what-percentage-of-paycheck-goes-to-taxes/">See every state →</a></p>
+<p><a href="/how-much-tax-is-taken-out-of-paycheck/">The same question in dollars →</a></p>
+<ul class="links">
+</ul>
+`,
+    }),
+  };
+}
+
+function percentageHubPage() {
+  const rows = TAX_PAGE_STATES.map((c) => ({ c, name: params.states[c].name, pct: stateWithholdingRate(c).pct })).sort((a, b) => a.pct - b.pct);
+  return {
+    slug: "/what-percentage-of-paycheck-goes-to-taxes/",
+    html: layout({
+      title: "What Percentage of Your Paycheck Goes to Taxes? By State",
+      desc: "The share of gross pay lost to federal tax, state tax and FICA in every state, computed at each state's median salary.",
+      slug: "/what-percentage-of-paycheck-goes-to-taxes/",
+      breadcrumb: [{ name: "Home", href: "/" }, { name: "Percent of paycheck", href: "/what-percentage-of-paycheck-goes-to-taxes/" }],
+      body: `
+<p class="crumb"><a href="/">Home</a> › Percent of paycheck to taxes</p>
+<h1>What Percentage of Your Paycheck Goes to Taxes?</h1>
+<p class="lede">Nationwide the figure usually lands between <strong>${pct_full(rows[0].pct)}</strong> and <strong>${pct_full(rows[rows.length - 1].pct)}</strong> for a single filer at a typical salary. FICA contributes 7.65% almost everywhere; everything above that is income tax.</p>
+<table>
+<thead><tr><th>#</th><th>State</th><th class="num">To taxes</th><th class="num">You keep</th></tr></thead>
+<tbody>
+${rows.map((r, i) => `<tr><td>${i + 1}</td><td><a href="/what-percentage-of-paycheck-goes-to-taxes-in-${stateSlug(r.c)}/">${esc(r.name)}</a></td><td class="num">${pct_full(r.pct)}</td><td class="num">${pct_full(1 - r.pct)}</td></tr>`).join("\n")}
+</tbody></table>
+<p><a href="/how-much-tax-is-taken-out-of-paycheck/">See the dollar amounts instead →</a></p>
+`,
+    }),
+  };
+}
+
+const TAX_PAGE_STATES = ["TX", "CA", "FL", "NY", "IL", "GA", "NJ", "MA", "WA", "MI", "NC", "TN", "OH", "PA", "AZ", "VA", "CO", "MD", "MN", "WI", "MO", "IN", "SC", "OR", "CT", "NV", "UT", "KY", "OK", "IA", "AR", "MS", "KS", "NE", "NM", "ID", "WV", "HI", "ME", "MT", "ND", "SD", "DE", "RI", "VT", "NH", "AK", "WY", "LA", "DC"];
+
+function stateWithholdingRate(code) {
+  const d = stateIncome.byState[params.states[code].name];
+  const median = d && d.median ? d.median : 65000;
+  const gross = Math.round(median / 100) * 100;
+  const c = computePaycheck(params, gross, code, "single");
+  return { gross, c, pct: c.totalTax / gross, fedPct: c.federalTax / gross, statePct: c.stateTax / gross, ficaPct: c.fica / gross };
+}
+
+function withholdingPage(code) {
+  const st = params.states[code];
+  const { gross, c, pct, fedPct, statePct, ficaPct } = stateWithholdingRate(code);
+  const d = stateIncome.byState[st.name];
+  const ranked = TAX_PAGE_STATES
+    .map((x) => ({ name: params.states[x].name, pct: stateWithholdingRate(x).pct }))
+    .sort((a, b) => a.pct - b.pct);
+  const rank = ranked.findIndex((r) => r.name === st.name) + 1;
+  const slug = `/how-much-tax-is-taken-out-of-paycheck-in-${stateSlug(code)}/`;
+  return {
+    slug,
+    html: layout({
+      title: `How Much Tax Is Taken Out of a Paycheck in ${st.name}?`,
+      desc: `On a typical ${st.name} salary of ${fmt(gross)}, about ${pct_full(pct)} goes to federal tax, ${st.name} tax and FICA. See the exact dollar breakdown.`,
+      slug,
+      breadcrumb: [{ name: "Home", href: "/" }, { name: "Paycheck tax by state", href: slug }],
+      faq: [
+        { q: `How much tax is taken out of a paycheck in ${st.name}?`, a: `About ${pct_full(pct)} on a ${fmt(gross)} salary for a single filer: ${pct_full(fedPct)} federal income tax, ${statePct === 0 ? "no state income tax" : pct_full(statePct) + " " + st.name + " income tax"} and ${pct_full(ficaPct)} Social Security and Medicare.` },
+        { q: `Does ${st.name} take state tax out of your paycheck?`, a: statePct === 0 ? `No. ${st.name} has no wage income tax, so only federal income tax and FICA are withheld.` : `Yes. On ${fmt(gross)} the ${st.name} withholding comes to ${fmt(c.stateTax)} a year, or about ${pct_full(statePct)}.` },
+      ],
+      body: `
+<p class="crumb"><a href="/">Home</a> › How much tax is taken out</p>
+<h1>How Much Tax Is Taken Out of a Paycheck in ${esc(st.name)}?</h1>
+<p class="lede">On a typical ${esc(st.name)} salary of <strong>${fmt(gross)}</strong>, a single filer has about <strong>${pct_full(pct)}</strong> withheld: ${fmt(c.totalTax)} a year, or ${fmt(c.totalTax / 12)} a month. That ranks ${esc(st.name)} <strong>${rank} of ${ranked.length}</strong> for paycheck withholding among the states here.</p>
+<div class="grid3">
+  <div class="card"><div class="k">Withheld / year</div><div class="v">${fmt(c.totalTax)}</div></div>
+  <div class="card"><div class="k">Share of gross</div><div class="v">${pct_full(pct)}</div></div>
+  <div class="card"><div class="k">Keep / year</div><div class="v">${fmt(c.net)}</div></div>
+</div>
+
+<h2>The three things taken out</h2>
+<table>
+<thead><tr><th>Withholding</th><th class="num">Per year</th><th class="num">Share of gross</th></tr></thead>
+<tbody>
+<tr><td>Federal income tax</td><td class="num">${fmt(c.federalTax)}</td><td class="num">${pct_full(fedPct)}</td></tr>
+<tr><td>${esc(st.name)} income tax</td><td class="num">${c.stateTax === 0 ? "$0" : fmt(c.stateTax)}</td><td class="num">${pct_full(statePct)}</td></tr>
+<tr><td>Social Security + Medicare</td><td class="num">${fmt(c.fica)}</td><td class="num">${pct_full(ficaPct)}</td></tr>
+<tr><td><strong>Total withheld</strong></td><td class="num"><strong>${fmt(c.totalTax)}</strong></td><td class="num"><strong>${pct_full(pct)}</strong></td></tr>
+</tbody></table>
+<p>FICA is fixed at 6.2% for Social Security up to ${fmt(params.fica.ss_wage_base)} of wages and 1.45% for Medicare, so ${pct_full(ficaPct)} is the same in every state at this salary. The part that moves is the state line.</p>
+
+${adsSlot()}
+
+<h2>Where ${esc(st.name)} sits</h2>
+<p>${esc(st.name)} ranks <strong>${rank} of ${ranked.length}</strong> on paycheck withholding. The states immediately around it:
+${ranked.slice(Math.max(0, rank - 3), rank + 2).filter((r) => r.name !== st.name).map((r) => `${esc(r.name)} at ${pct_full(r.pct)}`).join(", ")}.</p>
+<p>The lightest state measured here is ${esc(ranked[0].name)} at ${pct_full(ranked[0].pct)}; the heaviest is ${esc(ranked[ranked.length - 1].name)} at ${pct_full(ranked[ranked.length - 1].pct)}. ${esc(st.name)} sits ${pct_full(pct - ranked[0].pct)} above the lightest and ${pct_full(ranked[ranked.length - 1].pct - pct)} below the heaviest.</p>
+<p>${d ? `The salary used here, ${fmt(gross)}, is ${esc(st.name)}'s median household income from ${stateIncome.year} — so this is what a typical local earner sees, not what a national average salary would produce in ${esc(st.name)}.` : ""}</p>
+
+<h2>What actually changes your number</h2>
+<p>Three things move withholding more than the state does: filing status, pre-tax deductions and additional income. A 401(k) contribution comes out before federal income tax, so putting in 5% lowers the federal line without lowering the FICA line. Filing jointly widens the federal brackets, which is why two similar salaries can withhold very differently.</p>
+<p class="byline">Computed with ${params.meta.tax_year} federal brackets, the ${fmt(params.fica.ss_wage_base)} Social Security wage base, and ${esc(st.name)}'s published rate${st.bracketYear === 2025 ? " (2025 bracket widths — 2026 not yet published)" : ""}. Estimate only, not tax advice.</p>
+
+${calculatorBlock({ defaultGross: gross, state: code, heading: "Your own paycheck" })}
+
+<h2>Related</h2>
+<ul class="links">
+  ${SALARY_STATES.includes(code) && SALARY_STATE_VALUES.includes(Math.round(gross / 1000) * 1000) ? `<li><a href="/${Math.round(gross / 1000) * 1000}-a-year-after-taxes-in-${stateSlug(code)}/">${fmt(Math.round(gross / 1000) * 1000)} after taxes in ${esc(st.name)}</a></li>` : ""}
+  <li><a href="/paycheck-calculator/${code.toLowerCase()}/">${esc(st.name)} paycheck calculator</a></li>
+  <li><a href="/what-percentage-of-paycheck-goes-to-taxes-in-${stateSlug(code)}/">What percentage of a ${esc(st.name)} paycheck goes to taxes</a></li>
+  <li><a href="/how-much-tax-is-taken-out-of-paycheck/">All states</a></li>
+</ul>
+`,
+    }),
+  };
+}
+
+function pct_full(x) {
+  return (x * 100).toFixed(1) + "%";
+}
+
+/* ── assemble ──/* ── assemble ──/* ── assemble ──/* ── assemble ────────────────────────────────────────────────────────── */
 
 const pages = [];
 pages.push(homePage());
@@ -1519,6 +1745,11 @@ for (const code of ["CA", "NY", "IL", "NJ", "GA", "MA"]) {
 for (const s of GOOD_SALARIES) pages.push(goodSalaryPage(s));
 for (const amount of SALARY_STATE_VALUES) for (const code of SALARY_STATES) pages.push(salaryStatePage(amount, code));
 pages.push(...payPeriodPages());
+for (const code of TAX_PAGE_STATES) {
+  pages.push(withholdingPage(code));
+  pages.push(percentPage(code));
+}
+pages.push(withholdingHubPage(), percentageHubPage());
 
 /* sitemap + robots + llms.txt */
 

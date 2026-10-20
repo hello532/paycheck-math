@@ -252,6 +252,30 @@ Consequences worth stating plainly:
   2025 bracket widths. Both now state the sourced position and point at the disclosure.
 - **All 1,232 live URLs verified twice** with full GET responses: 1232/1232 return 200 both passes.
 
+### Round 6 — Google autocomplete clusters built into pages
+
+Pulled live Google suggest data (US/en) across 20 seed phrases and kept only the clusters the
+site did not already answer:
+
+1. `how much tax is taken out of paycheck` + `in {state}` — the suggest list returned 10 state
+   variants, including Illinois, Arizona and Virginia.
+2. `what percentage of paycheck goes to taxes` + `in {state}` — 10 more state variants.
+3. `how much of my paycheck goes to taxes` / `how much federal tax is taken out of paycheck`.
+
+Built 104 new pages (50 states + DC × two forms, plus two hub pages). Every page computes its own
+figures from that state's median household income, so the numbers are genuinely different:
+Tennessee 16.6%, Texas 18.0%, California 25.4%, Oregon 26.7%, DC 27.2%.
+
+Deliberately **not** built: `is overtime taxed higher` and `do you get taxed more for overtime`,
+because answering them correctly needs overtime rules the engine does not model yet. Shipping a
+guess would be worse than not having the page.
+
+The similarity gate rejected the first version (1,230 pairs above 0.6, max 0.755) because each page
+embedded the same 51-state table. Replacing that with neighbouring-state positioning and a
+per-state income/keep/spend analysis brought it to max 0.599, zero pairs over the limit.
+
+Live: 1,334 URLs, all returning 200 (full GET pass), IndexNow accepted all 1,334.
+
 ## GSC snapshots
 
 ### GSC snapshot — https://typing.rerivo.com/ — 2026-10-21

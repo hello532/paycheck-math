@@ -1,11 +1,11 @@
 {
-  "base": "https://paycheck-math.pages.dev",
+  "base": "https://hello532.github.io/paycheck-math",
   "date": "2026-10-20",
   "checks": [
     {
       "name": "sitemap urls",
       "ok": true,
-      "detail": "811 urls"
+      "detail": "1232 urls"
     },
     {
       "name": "sitemap host",
@@ -25,7 +25,7 @@
     {
       "name": "canonical on live host",
       "ok": true,
-      "detail": "https://paycheck-math.pages.dev/"
+      "detail": "https://hello532.github.io/paycheck-math/"
     },
     {
       "name": "title under 60",
@@ -54,7 +54,7 @@
     },
     {
       "name": "state page sample salary differs by state",
-      "ok": false,
+      "ok": true,
       "detail": ""
     },
     {
@@ -78,7 +78,5 @@
       "detail": "51"
     }
   ],
-  "failures": [
-    "state page sample salary differs by state: "
-  ]
+  "failures": []
 }

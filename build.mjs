@@ -1308,7 +1308,124 @@ ${calculatorBlock({ defaultGross: amount, state: code, heading: "Recalculate" })
   };
 }
 
-/* ── assemble ──/* ── assemble ────────────────────────────────────────────────────────── */
+const TODAY = new Date(process.env.BUILD_DATE || Date.now());
+
+function payPeriodPages() {
+  const out = [];
+  const year = 2026;
+  const jan1 = new Date(Date.UTC(year, 0, 1));
+  const dec31 = new Date(Date.UTC(year, 11, 31));
+  const startToday = new Date(Date.UTC(TODAY.getUTCFullYear(), TODAY.getUTCMonth(), TODAY.getUTCDate()));
+
+  const schedules = {
+    weekly: { days: 7, label: "weekly", name: "Weekly" },
+    biweekly: { days: 14, label: "biweekly", name: "Biweekly" },
+    semimonthly: { days: null, label: "semimonthly", name: "Semi-monthly" },
+    monthly: { days: null, label: "monthly", name: "Monthly" },
+  };
+
+  const addDays = (d, n) => new Date(d.getTime() + n * 86400000);
+  const fmtDate = (d) =>
+    d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+
+  for (const [key, sched] of Object.entries(schedules)) {
+    let dates = [];
+    if (sched.days) {
+      for (let d = new Date(jan1); d <= dec31; d = addDays(d, sched.days)) dates.push(new Date(d));
+    } else if (key === "semimonthly") {
+      for (let m = 0; m < 12; m++) {
+        dates.push(new Date(Date.UTC(year, m, 15)));
+        dates.push(new Date(Date.UTC(year, m + 1, 0)));
+      }
+    } else {
+      for (let m = 0; m < 12; m++) dates.push(new Date(Date.UTC(year, m + 1, 0)));
+    }
+    dates = dates.filter((d) => d >= jan1 && d <= dec31).sort((a, b) => a - b);
+    const remaining = dates.filter((d) => d >= startToday);
+    const next3 = remaining.slice(0, 3);
+    const perYear = dates.length;
+    const perCheck = 1000;
+    const slug = `/how-many-${sched.label}-paychecks-in-${year}/`;
+    const title = `How Many ${sched.name} Paychecks in ${year}? ${perYear} Paydays`;
+    const desc = `A ${sched.label} pay schedule produces ${perYear} paychecks in ${year}. See every payday, how many are left from ${fmtDate(startToday)}, and what each one is worth after tax.`;
+
+    out.push({
+      slug,
+      html: layout({
+        title,
+        desc,
+        slug,
+        breadcrumb: [{ name: "Home", href: "/" }, { name: `${sched.name} paychecks ${year}`, href: slug }],
+        faq: [
+          {
+            q: `How many ${sched.label} paychecks are there in ${year}?`,
+            a: `${perYear}. A ${sched.label} schedule in ${year} runs from January 1 to December 31 and produces that many paydays.`,
+          },
+          {
+            q: `How many ${sched.label} paychecks are left in ${year}?`,
+            a: `${remaining.length}, counting from ${fmtDate(startToday)}. The next one is ${next3.length ? fmtDate(next3[0]) : "none — the year\u2019s schedule has ended"}.`,
+          },
+        ],
+        body: `
+<p class="crumb"><a href="/">Home</a> › ${sched.name} paychecks</p>
+<h1>How Many ${sched.name} Paychecks in ${year}?</h1>
+<p class="lede">A ${sched.label} pay schedule produces <strong>${perYear} paychecks</strong> in ${year}. From ${fmtDate(startToday)} there are <strong>${remaining.length} left</strong>${next3.length ? `, and the next one falls on ${fmtDate(next3[0])}` : ""}.</p>
+<div class="grid3">
+  <div class="card"><div class="k">Paychecks in ${year}</div><div class="v">${perYear}</div></div>
+  <div class="card"><div class="k">Left this year</div><div class="v">${remaining.length}</div></div>
+  <div class="card"><div class="k">Next payday</div><div class="v" style="font-size:16px">${next3.length ? fmtDate(next3[0]) : "—"}</div></div>
+</div>
+
+<h2>What each paycheck is worth at different salaries</h2>
+<p>The number of paydays is the same whatever you earn; the size of each check is not. Gross per check at ${sched.label} frequency, and the after-tax figure for a single filer in California:</p>
+<table>
+<thead><tr><th>Annual salary</th><th class="num">Gross per check</th><th class="num">Take-home per check (CA)</th></tr></thead>
+<tbody>
+${[40000, 50000, 65000, 75000, 100000, 120000]
+  .map((amt) => {
+    const c = computePaycheck(params, amt, "CA", "single");
+    return `<tr><td><a href="/${amt}-a-year-after-taxes/">$${amt.toLocaleString("en-US")}</a></td><td class="num">${usd2(amt / perYear)}</td><td class="num">${usd2(c.net / perYear)}</td></tr>`;
+  })
+  .join("\n")}
+</tbody></table>
+<p>Divide the annual figure by ${perYear}, not by 12 or 26 — the mismatch is the single most common payroll surprise. A ${sched.label} schedule in a ${perYear}-payday year means each check is ${(12 / perYear * 100).toFixed(1)}% of a month's salary on average.</p>
+
+${adsSlot()}
+
+<h2>Upcoming ${year} paydays</h2>
+<p>The next ten ${sched.label} paydays from today:</p>
+<table>
+<thead><tr><th>#</th><th>Payday</th><th class="num">Days away</th></tr></thead>
+<tbody>
+${next3.length
+  ? remaining
+      .slice(0, 10)
+      .map((d, i) => `<tr><td>${i + 1}</td><td>${fmtDate(d)}</td><td class="num">${Math.round((d - startToday) / 86400000)}</td></tr>`)
+      .join("\n")
+  : `<tr><td colspan="3">The ${year} schedule has ended. The next payday falls in ${year + 1}.</td></tr>`}
+</tbody></table>
+
+<h2>Why the count differs by year</h2>
+<p>${year} starts on a ${["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][jan1.getUTCDay()]}. Whether a ${sched.label} schedule produces ${perYear} checks or one more depends on where the year boundary lands relative to the payday. 52 weeks divide into ${year % 4 === 0 ? "366" : "365"} days with one or two days left over, which is why some years carry 27 checks instead of 26. The table above is computed from the actual calendar, not from a rule of thumb.</p>
+
+<h2>Related</h2>
+<ul class="links">
+  <li><a href="/how-many-biweekly-paychecks-in-${year}/">Biweekly paychecks in ${year}</a></li>
+  <li><a href="/how-many-weekly-paychecks-in-${year}/">Weekly paychecks in ${year}</a></li>
+  <li><a href="/how-many-monthly-paychecks-in-${year}/">Monthly paychecks in ${year}</a></li>
+  <li><a href="/how-many-semimonthly-paychecks-in-${year}/">Semi-monthly paychecks in ${year}</a></li>
+  <li><a href="/salary-to-hourly/">Salary to hourly</a></li>
+</ul>
+
+${calculatorBlock({ defaultGross: 75000, state: "CA", heading: "Your numbers" })}
+`,
+      }),
+    });
+  }
+  return out;
+}
+
+/* ── assemble ──/* ── assemble ──/* ── assemble ────────────────────────────────────────────────────────── */
 
 const pages = [];
 pages.push(homePage());
@@ -1398,6 +1515,7 @@ for (const code of ["CA", "NY", "IL", "NJ", "GA", "MA"]) {
 }
 for (const s of GOOD_SALARIES) pages.push(goodSalaryPage(s));
 for (const amount of SALARY_STATE_VALUES) for (const code of SALARY_STATES) pages.push(salaryStatePage(amount, code));
+pages.push(...payPeriodPages());
 
 /* sitemap + robots + llms.txt */
 

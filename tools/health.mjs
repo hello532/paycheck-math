@@ -1,7 +1,7 @@
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 
-const BASE = process.env.SITE_ORIGIN || "https://paycheck-math.pages.dev";
+const BASE = (process.env.SITE_ORIGIN || "https://paycheck-math.pages.dev") + (process.env.BASE_PATH || "");
 const report = { base: BASE, date: new Date().toISOString().slice(0, 10), checks: [], failures: [] };
 
 function check(name, ok, detail) {

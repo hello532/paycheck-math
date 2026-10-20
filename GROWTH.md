@@ -99,6 +99,7 @@ calculator recalculates in a real browser and writes shareable URL state.
 | Date | Pages | GSC impressions | GSC clicks | Notes |
 |---|---|---|---|---|
 | 2026-10-20 | 812 | n/a (new site) | n/a | Built and deployed to paycheck-math.pages.dev; 811 sitemap URLs accepted by IndexNow (HTTP 200). Health gate 12/12. No organic traffic yet by design. |
+| 2026-10-20 (r2b) | 1233 | n/a | n/a | Live at hello532.github.io/paycheck-math. 1,232 sitemap URLs, health 15/15 on that host, calculator verified under the subpath. Added pay-frequency pages computed from the real 2026 calendar (biweekly 27, weekly 53, monthly 12, semi-monthly 24) — independently recomputed and matched. |
 | 2026-10-20 (r2) | 1085 | n/a | n/a | Local only — Cloudflare OAuth expired before deploy. Removed 182 duplicate hourly-by-state pages (9 no-wage-tax states produce identical take-home, so one shared figure replaced nine copies), added 6 taxing states (CA/NY/IL/NJ/GA/MA) at 91 rates each where the numbers genuinely differ. Added per-state income percentiles, local-tax facts, and a 5-gram similarity gate (max 0.571, mean 0.191). |
 
 ## Round 2 defects found and fixed

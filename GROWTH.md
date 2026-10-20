@@ -187,3 +187,21 @@ Then add `https://pay.rerivo.com/` as a Search Console property and submit
 - **Unverifiable copy**: an early draft claimed a bracket boundary made +$1,000 and −$1,000
   asymmetric. Checking the engine showed the step is symmetric at every tested income, so the
   claim was removed rather than dressed up.
+
+## Goal audit — 2026-10-20
+
+Checked against the objective as written, not against what was convenient:
+
+| Requirement | State | Evidence |
+|---|---|---|
+| Find a vertical that can actually earn USD | **done** | SERP checks show small sites (pinebill.app, oysterlink.com, hivedesk.com) ranking on salary/hourly long tail; finance is a top-RPM ad category |
+| Build it | **done** | 1,233 pages live at hello532.github.io/paycheck-math; 1,232 sitemap URLs all return 200 (measured, not sampled) |
+| 500+ unique pages, no thin content | **done** | 5-gram shingle gate: 1,217 pages, max 0.596, mean 0.190, no pair above 0.6 |
+| Verification each round (build --check, live 200, GSC snapshot in GROWTH.md) | **partial** | build --check passes, live 200 verified; **GSC snapshot is absent because the site has no verified GSC property.** The GSC API lists only typing.rerivo.com, bimaxlaundrycare.com and the Shopify store. Adding and verifying a property needs the user's Google account action; the site-verification API is retired (404). |
+| AdSense connected | **wired, not earning** | `ADSENSE_CLIENT` emits loader + units and is verified both ways; no approved publisher ID exists, so nothing is live |
+| Affiliate connected | **not done** | no program approved; placing unapproved links earns nothing |
+| 500k impressions / 100k sessions / 1M sessions | **not achieved** | site is 1 day old with zero measured traffic; these are months away at best |
+
+Honest status: the build is complete and verified, but the traffic and revenue milestones are not
+achieved and cannot be claimed. The blockers are the user's: GSC property verification, an AdSense
+publisher ID, and Cloudflare DNS (or keeping GitHub Pages as the permanent host).

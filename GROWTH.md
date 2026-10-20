@@ -204,6 +204,10 @@ Checked against the objective as written, not against what was convenient:
 | Affiliate connected | **not done** | no program approved; placing unapproved links earns nothing |
 | 500k impressions / 100k sessions / 1M sessions | **not achieved** | site is 1 day old with zero measured traffic; these are months away at best |
 
+Round 4 also cross-checked the engine's boundaries: Social Security stops exactly at the $184,500
+base ($11,439.00), additional Medicare kicks in above $200,000, and CA/IL/NY/GA/MS/UT/NE rates
+were each matched to an official or primary source. Four were wrong and are now fixed.
+
 Honest status: the build is complete and verified, but the traffic and revenue milestones are not
 achieved and cannot be claimed. The blockers are the user's: GSC property verification, an AdSense
 publisher ID, and Cloudflare DNS (or keeping GitHub Pages as the permanent host).

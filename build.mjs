@@ -317,6 +317,8 @@ ${adsSlot()}
 
 ${calculatorBlock({ defaultGross: amount, state: "CA" })}
 
+${marginalStepBlock(amount, "CA")}
+
 <h2>Nearby salaries</h2>
 ${ladderLinks(SALARIES, amount, (s) => `/${s}-a-year-is-how-much-an-hour/`, (s) => `$${s.toLocaleString("en-US")} a year`)}
 <p><a href="/salary-to-hourly/">See the full salary-to-hourly table →</a></p>
@@ -405,6 +407,8 @@ ${["TX", ...(NO_TAX.slice(0, 2)), "FL", ...HIGH_TAX.slice(0, 4)]
 <p>At ${fmt(base.net / 12)} net a month, the 50/30/20 rule would put ${fmt(base.net / 12 * 0.5)} toward needs, ${fmt(base.net / 12 * 0.3)} toward wants and ${fmt(base.net / 12 * 0.2)} toward savings or debt. If rent takes 30% of gross — ${fmt(amount * 0.3 / 12)} — the remainder after rent is ${fmt(base.net / 12 - amount * 0.3 / 12)} a month.</p>
 
 ${calculatorBlock({ defaultGross: amount, state: "CA", heading: "Recalculate with your numbers" })}
+
+${marginalStepBlock(amount, "CA")}
 
 <h2>Nearby salaries after tax</h2>
 ${ladderLinks(SALARIES, amount, (s) => `/${s}-a-year-after-taxes/`, (s) => `$${s.toLocaleString("en-US")} a year`)}
@@ -495,6 +499,8 @@ ${(st.brackets || []).map((b) => `<tr><td>${b.up_to == null ? "and above" : fmt(
 <tr><td><strong>Net</strong></td><td class="num"><strong>${fmt(c.net)}</strong></td><td class="num"><strong>${fmt(c.net / 12)}</strong></td></tr>
 </tbody></table>
 <div class="note">Against Texas (no wage tax) the same $75,000 nets ${fmt(tx.net)}. ${esc(st.name)} comes out ${c.net >= tx.net ? `${fmt(c.net - tx.net)} ahead` : `${fmt(tx.net - c.net)} behind`}.</div>
+
+${stateFactsBlock(code, sample)}
 
 <h2>Other states</h2>
 <ul class="links">
@@ -916,6 +922,44 @@ function notFoundPage() {
     slug,
     html: layout({ title: "Page not found — Paycheck Math", desc: "That page does not exist. Use the salary, hourly or state paycheck calculators.", slug: "/404.html", body }),
   };
+}
+
+function marginalStepBlock(amount, state) {
+  const net = computePaycheck(params, amount, state, "single").net;
+  const next = computePaycheck(params, amount + 1000, state, "single").net;
+  const prev = computePaycheck(params, amount - 1000, state, "single").net;
+  const up = next - net;
+  const down = net - prev;
+  const mr = computePaycheck(params, amount, state, "single").marginalFederal;
+  const stateHasTax = params.states[state].type !== "none";
+  return `<h2>What the next $1,000 does</h2>
+<p>At ${fmt(amount)}, another $1,000 of gross pay adds <strong>${fmt(up)}</strong> to your annual take-home — you keep ${pct(up / 1000)} of it. Your top federal bracket is ${pct(mr)}; Social Security and Medicare take another ${pct(params.fica.ss_rate + params.fica.medicare_rate)}${stateHasTax ? `, and ${esc(params.states[state].name)} income tax a little more` : ""}, which is why the marginal rate you face is ${pct(1 - up / 1000)} rather than the bracket rate alone.</p>
+<table>
+<thead><tr><th>Gross change</th><th class="num">Take-home per year</th><th class="num">Change</th></tr></thead>
+<tbody>
+<tr><td>−$1,000</td><td class="num">${fmt(prev)}</td><td class="num">−${fmt(down)}</td></tr>
+<tr><td>current</td><td class="num">${fmt(net)}</td><td class="num">—</td></tr>
+<tr><td>+$1,000</td><td class="num">${fmt(next)}</td><td class="num">+${fmt(up)}</td></tr>
+</tbody></table>
+<p>To move your take-home by ${fmt(1000)} you would need about ${fmt(1000 / (up / 1000))} more gross pay, because the rest goes to tax.</p>`;
+}
+
+function stateFactsBlock(code, amount) {
+  const st = params.states[code];
+  const c = computePaycheck(params, amount, code, "single");
+  const tx = computePaycheck(params, amount, "TX", "single");
+  const diff = c.net - tx.net;
+  const marginal = 1 - (computePaycheck(params, amount + 1000, code, "single").net - c.net) / 1000;
+  return `<h2>What is specific to ${esc(st.name)} here</h2>
+<p>Your marginal rate — what you lose on the next dollar earned — is <strong>${pct(marginal)}</strong> in ${esc(st.name)}, against ${pct(1 - (computePaycheck(params, amount + 1000, "TX", "single").net - tx.net) / 1000)} in Texas. That is the number that matters for overtime, a raise or a second job.</p>
+<table>
+<thead><tr><th>Line</th><th class="num">${esc(st.name)}</th><th class="num">Texas (no state tax)</th><th class="num">Difference</th></tr></thead>
+<tbody>
+<tr><td>State income tax</td><td class="num">${c.stateTax === 0 ? "$0" : fmt(c.stateTax)}</td><td class="num">$0</td><td class="num">${c.stateTax === 0 ? "—" : fmt(c.stateTax)}</td></tr>
+<tr><td>Take-home</td><td class="num">${fmt(c.net)}</td><td class="num">${fmt(tx.net)}</td><td class="num">${diff >= 0 ? "+" : "−"}${fmt(Math.abs(diff))}</td></tr>
+<tr><td>Monthly</td><td class="num">${fmt(c.net / 12)}</td><td class="num">${fmt(tx.net / 12)}</td><td class="num">${diff >= 0 ? "+" : "−"}${fmt(Math.abs(diff) / 12)}</td></tr>
+</tbody></table>
+<p>${c.stateTax === 0 ? `${esc(st.name)} is one of eight states with no tax on wage income.` : `Over a working year that is ${fmt(Math.abs(diff) / 12)} a month of difference on the same gross salary.`}</p>`;
 }
 
 /* ── assemble ────────────────────────────────────────────────────────── */

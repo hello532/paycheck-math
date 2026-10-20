@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
-const BASE = path.join(ROOT, "../public");
+const BASE = path.join(ROOT, "../public" + (process.env.BASE_PATH || ""));
 const N = 5;
 const LIMIT = 0.6;
 
@@ -66,6 +66,10 @@ for (let i = 0; i < sets.length; i++) {
 }
 
 const empty = sets.filter((x) => x.s.size < 60).map((x) => `${x.name} (${x.s.size} shingles)`);
+if (sets.length < 100) {
+  console.error(`FAIL: only ${sets.length} pages found under ${BASE} — wrong build directory?`);
+  process.exit(1);
+}
 
 console.log(`pages compared: ${sets.length} (${n} pairs)`);
 console.log(`mean 5-gram similarity: ${(sum / n).toFixed(3)}`);

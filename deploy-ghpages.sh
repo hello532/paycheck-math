@@ -8,6 +8,7 @@ BASE=${BASE_PATH:-/paycheck-math}
 
 python3 tools/build_state_params.py
 python3 tools/apply_flags.py
+python3 tools/apply_2026_overrides.py
 node tools/tax.test.mjs
 SITE_ORIGIN="$ORIGIN" BASE_PATH="$BASE" node build.mjs
 SITE_ORIGIN="$ORIGIN" BASE_PATH="$BASE" node build.mjs --check

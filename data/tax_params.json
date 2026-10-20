@@ -9,7 +9,13 @@
       "fica": "https://www.ssa.gov/oact/cola/cbb.html",
       "states": "https://taxfoundation.org/data/all/state/state-income-tax-rates-2026/"
     },
-    "bracket_year_policy": "Federal figures are tax year 2026 (IRS Rev. Proc. 2025-32). State brackets are 2026 except for states flagged bracketYear 2025, whose inflation-adjusted 2026 widths were not published."
+    "bracket_year_policy": "Federal figures are tax year 2026 (IRS Rev. Proc. 2025-32). State brackets are 2026 except for states flagged bracketYear 2025, whose inflation-adjusted 2026 widths were not published.",
+    "verified_overrides": [
+      "GA",
+      "UT",
+      "MS",
+      "NE"
+    ]
   },
   "federal": {
     "year": 2026,
@@ -356,9 +362,12 @@
     "GA": {
       "name": "Georgia",
       "type": "flat",
-      "standard_deduction": 12000.0,
+      "standard_deduction": 15000,
       "confidence": "high",
-      "rate": 0.0519
+      "rate": 0.0499,
+      "bracketYear": 2026,
+      "source": "https://dor.georgia.gov/taxes/important-tax-updates",
+      "note": "2026: flat rate cut to 4.99% and standard deduction raised to $15,000 (Georgia DOR)."
     },
     "HI": {
       "name": "Hawaii",
@@ -643,10 +652,22 @@
     },
     "MS": {
       "name": "Mississippi",
-      "type": "flat",
-      "standard_deduction": 2300.0,
+      "type": "brackets",
+      "standard_deduction": 0,
       "confidence": "high",
-      "rate": 0.04
+      "brackets": [
+        {
+          "up_to": 10000,
+          "rate": 0.0
+        },
+        {
+          "up_to": null,
+          "rate": 0.044
+        }
+      ],
+      "bracketYear": 2026,
+      "source": "https://www.dor.ms.gov/general-information",
+      "note": "2026: 0% on the first $10,000 of taxable income, 4.4% above that (Mississippi DOR)."
     },
     "MT": {
       "name": "Montana",
@@ -709,7 +730,10 @@
       ],
       "standard_deduction": 8850.0,
       "confidence": "high",
-      "bracketYear": 2026
+      "bracketYear": 2026,
+      "topRate": 0.0455,
+      "source": "https://revenue.nebraska.gov",
+      "note": "2026: top marginal rate 4.55%, part of the scheduled reduction to 3.99% by 2027."
     },
     "NH": {
       "name": "New Hampshire",
@@ -960,8 +984,10 @@
       "type": "flat",
       "standard_deduction": 0,
       "confidence": "high",
-      "rate": 0.045,
-      "bracketYear": 2026
+      "rate": 0.0445,
+      "bracketYear": 2026,
+      "source": "https://le.utah.gov",
+      "note": "2026: flat rate reduced to 4.45% (Utah 2026 tax law change)."
     },
     "VA": {
       "name": "Virginia",

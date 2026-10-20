@@ -5,6 +5,8 @@ cd "$(dirname "$0")"
 ORIGIN="${SITE_ORIGIN:-https://paycheck-math.pages.dev}"
 
 python3 tools/build_state_params.py
+python3 tools/apply_flags.py
+python3 tools/apply_2026_overrides.py
 node tools/tax.test.mjs
 SITE_ORIGIN="$ORIGIN" node build.mjs
 SITE_ORIGIN="$ORIGIN" node build.mjs --check

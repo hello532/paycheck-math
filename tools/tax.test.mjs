@@ -120,4 +120,26 @@ t("no-wage-tax states carry no bracket-year note", () => {
   }
 });
 
+t("Georgia 2026: 4.99% flat after a $15,000 standard deduction", () => {
+  const c = computePaycheck(tax, 75000, "GA", "single");
+  assert.ok(Math.abs(c.stateTax - (75000 - 15000) * 0.0499) < 0.01, String(c.stateTax));
+});
+
+t("Mississippi 2026: 0% on the first $10,000, 4.4% above", () => {
+  const c = computePaycheck(tax, 75000, "MS", "single");
+  assert.ok(Math.abs(c.stateTax - 65000 * 0.044) < 0.01, String(c.stateTax));
+  const low = computePaycheck(tax, 9000, "MS", "single");
+  assert.equal(low.stateTax, 0);
+});
+
+t("Utah 2026: 4.45% flat", () => {
+  const c = computePaycheck(tax, 75000, "UT", "single");
+  assert.ok(Math.abs(c.stateTax - 75000 * 0.0445) < 0.01, String(c.stateTax));
+});
+
+t("Illinois is 4.95% per the IL-1040 instructions", () => {
+  assert.equal(tax.states.IL.rate, 0.0495);
+  assert.ok(Math.abs(computePaycheck(tax, 75000, "IL", "single").stateTax - 75000 * 0.0495) < 0.01);
+});
+
 console.log(`\n${passed} tests passed`);

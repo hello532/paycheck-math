@@ -1277,7 +1277,7 @@ function salaryStatePage(amount, code) {
 <div class="note">${
   st.type === "none"
     ? `${esc(st.name)} is one of ${NO_TAX_STATES.length} states with no wage income tax, so this figure is identical in ${NO_TAX_STATES.filter((x) => x !== code).map((x) => params.states[x].name).join(", ")}. The comparison that matters is against a state that does tax wages: California on the same salary nets ${fmt(computePaycheck(params, amount, "CA", "single").net)}.`
-    : `The same ${amount.toLocaleString("en-US")} in Texas, which has no wage income tax, nets ${fmt(tx.net)} — ${c.net >= tx.net ? `${fmt(c.net - tx.net)} more` : `${fmt(tx.net - c.net)} less`} than ${esc(st.name)}.`
+    : `The same $${amount.toLocaleString("en-US")} in Texas, which has no wage income tax, nets ${fmt(tx.net)} — ${c.net >= tx.net ? `${fmt(c.net - tx.net)} more` : `${fmt(tx.net - c.net)} less`} than ${esc(st.name)}.`
 }</div>
 
 <h2>Where this salary sits in ${esc(st.name)}</h2>

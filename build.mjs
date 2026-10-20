@@ -1573,6 +1573,65 @@ ${rows.map((r, i) => `<tr><td>${i + 1}</td><td><a href="/what-percentage-of-payc
   };
 }
 
+function paycheckTaxDataset() {
+  return TAX_PAGE_STATES.map((c) => {
+    const r = stateWithholdingRate(c);
+    return {
+      state: params.states[c].name,
+      code: c,
+      medianIncome: r.gross,
+      federal: Math.round(r.c.federalTax),
+      stateTax: Math.round(r.c.stateTax),
+      fica: Math.round(r.c.fica),
+      withheld: Math.round(r.c.totalTax),
+      keep: Math.round(r.c.net),
+      withheldShare: +(r.pct * 100).toFixed(2),
+    };
+  }).sort((a, b) => a.withheldShare - b.withheldShare);
+}
+
+function dataPage() {
+  const rows = paycheckTaxDataset();
+  const slug = "/data/paycheck-tax-by-state/";
+  const csv = ["state,code,median_income,federal_tax,state_tax,fica,total_withheld,take_home,withheld_share_pct"]
+    .concat(rows.map((r) => [r.state, r.code, r.medianIncome, r.federal, r.stateTax, r.fica, r.withheld, r.keep, r.withheldShare].join(",")))
+    .join("\n") + "\n";
+  return {
+    slug,
+    csv,
+    json: JSON.stringify({ generated: params.meta.generated, taxYear: params.meta.tax_year, method: "single filer, standard deduction, each state's own median household income", rows }, null, 2) + "\n",
+    html: layout({
+      title: "US Paycheck Tax by State, 2026 — Open Dataset",
+      desc: "Share of gross pay withheld for federal tax, state tax and FICA in all 51 US jurisdictions, computed at each jurisdiction's own median household income. Free CSV and JSON.",
+      slug,
+      breadcrumb: [{ name: "Home", href: "/" }, { name: "Open data", href: slug }],
+      body: `
+<p class="crumb"><a href="/">Home</a> › Open data</p>
+<h1>US Paycheck Tax by State — Open Dataset</h1>
+<p class="lede">How much of a typical paycheck is withheld in each US jurisdiction, computed at that jurisdiction's own median household income. <strong>51 rows</strong>, one methodology, free to reuse.</p>
+<div class="grid3">
+  <div class="card"><div class="k">Lowest</div><div class="v">${rows[0].state} ${rows[0].withheldShare}%</div></div>
+  <div class="card"><div class="k">Median of states</div><div class="v">${rows[Math.floor(rows.length / 2)].withheldShare}%</div></div>
+  <div class="card"><div class="k">Highest</div><div class="v">${rows[rows.length - 1].state} ${rows[rows.length - 1].withheldShare}%</div></div>
+</div>
+
+<p><strong>Download:</strong> <a href="/data/paycheck-tax-by-state.csv">CSV</a> · <a href="/data/paycheck-tax-by-state.json">JSON</a>. Licence: reuse freely with attribution to Paycheck Math.</p>
+
+<h2>Method</h2>
+<p>For each jurisdiction: gross = its median household income from the 2023 ACS one-year estimates, rounded to the nearest $100; deductions = ${params.meta.tax_year} federal income tax after the standard deduction, that state's own wage tax, Social Security at 6.2% up to ${fmt(params.fica.ss_wage_base)} and Medicare at 1.45%. Single filer, no dependents, no pre-tax deductions. State personal exemptions and credits are excluded, so the state line is slightly overstated. That is the same engine the rest of this site uses.</p>
+
+<h2>The dataset</h2>
+<table>
+<thead><tr><th>#</th><th>State</th><th class="num">Median income</th><th class="num">Withheld</th><th class="num">Share</th><th class="num">Take-home</th></tr></thead>
+<tbody>
+${rows.map((r, i) => `<tr><td>${i + 1}</td><td><a href="/how-much-tax-is-taken-out-of-paycheck-in-${stateSlug(r.code)}/">${esc(r.state)}</a></td><td class="num">${fmt(r.medianIncome)}</td><td class="num">${fmt(r.withheld)}</td><td class="num">${r.withheldShare}%</td><td class="num">${fmt(r.keep)}</td></tr>`).join("\n")}
+</tbody></table>
+<p class="byline">Generated ${params.meta.generated}. Federal source: IRS Rev. Proc. 2025-32. State source: Tax Foundation 2026 table, with 2026 changes verified against state revenue departments for GA, MS, UT, NE. Income source: ACS 2023 1-year.</p>
+`,
+    }),
+  };
+}
+
 const TAX_PAGE_STATES = ["TX", "CA", "FL", "NY", "IL", "GA", "NJ", "MA", "WA", "MI", "NC", "TN", "OH", "PA", "AZ", "VA", "CO", "MD", "MN", "WI", "MO", "IN", "SC", "OR", "CT", "NV", "UT", "KY", "OK", "IA", "AR", "MS", "KS", "NE", "NM", "ID", "WV", "HI", "ME", "MT", "ND", "SD", "DE", "RI", "VT", "NH", "AK", "WY", "LA", "DC"];
 
 function stateWithholdingRate(code) {
@@ -1750,6 +1809,8 @@ for (const code of TAX_PAGE_STATES) {
   pages.push(percentPage(code));
 }
 pages.push(withholdingHubPage(), percentageHubPage());
+const dataAsset = dataPage();
+pages.push(dataAsset);
 
 /* sitemap + robots + llms.txt */
 
@@ -1803,6 +1864,8 @@ for (const p of pages) {
 files.set(path.join(OUT, BASE_PATH, "sitemap.xml"), sitemap);
 files.set(path.join(OUT, BASE_PATH, "robots.txt"), robots);
 files.set(path.join(OUT, BASE_PATH, "llms.txt"), llms);
+files.set(path.join(OUT, BASE_PATH, "data/paycheck-tax-by-state.csv"), dataAsset.csv);
+files.set(path.join(OUT, BASE_PATH, "data/paycheck-tax-by-state.json"), dataAsset.json);
 files.set(path.join(OUT, BASE_PATH, "d3b27220b2e09fc3488db3f7724ae3cc.txt"), "d3b27220b2e09fc3488db3f7724ae3cc\n");
 files.set(path.join(OUT, BASE_PATH, "assets/style.css"), css);
 files.set(path.join(OUT, BASE_PATH, "assets/calc.js"), calcJs);
@@ -1855,7 +1918,7 @@ for (const p of pages) {
   for (const m of hrefs) {
     let h = m[1];
     if (BASE_PATH && h.startsWith(BASE_PATH + "/")) h = h.slice(BASE_PATH.length);
-    if (h.startsWith("/assets/")) continue;
+    if (h.startsWith("/assets/") || h.startsWith("/data/")) continue;
     if (!slugs.has(h)) bad.push(`${p.slug} -> ${m[1]}`);
   }
 }

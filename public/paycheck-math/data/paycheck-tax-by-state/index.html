@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>US Paycheck Tax by State, 2026 — Open Dataset</title>
+<meta name="description" content="Share of gross pay withheld for federal tax, state tax and FICA in all 51 US jurisdictions, computed at each jurisdiction's own median household income. Free CSV and JSON.">
+<link rel="canonical" href="https://hello532.github.io/paycheck-math/data/paycheck-tax-by-state/">
+<meta property="og:title" content="US Paycheck Tax by State, 2026 — Open Dataset">
+<meta property="og:description" content="Share of gross pay withheld for federal tax, state tax and FICA in all 51 US jurisdictions, computed at each jurisdiction's own median household income. Free CSV and JSON.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://hello532.github.io/paycheck-math/data/paycheck-tax-by-state/">
+<meta property="og:site_name" content="Paycheck Math">
+<meta name="twitter:card" content="summary">
+<meta name="pm-base" content="/paycheck-math">
+<link rel="stylesheet" href="/paycheck-math/assets/style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://hello532.github.io/paycheck-math/"},{"@type":"ListItem","position":2,"name":"Open data","item":"https://hello532.github.io/paycheck-math/data/paycheck-tax-by-state/"}]}</script>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://hello532.github.io/paycheck-math/#website","url":"https://hello532.github.io/paycheck-math/","name":"Paycheck Math","description":"Salary, hourly and take-home pay calculators for the United States."},{"@type":"Organization","@id":"https://hello532.github.io/paycheck-math/#organization","name":"Paycheck Math","url":"https://hello532.github.io/paycheck-math/"},{"@type":"WebPage","@id":"https://hello532.github.io/paycheck-math/data/paycheck-tax-by-state/#webpage","url":"https://hello532.github.io/paycheck-math/data/paycheck-tax-by-state/","name":"US Paycheck Tax by State, 2026 — Open Dataset","description":"Share of gross pay withheld for federal tax, state tax and FICA in all 51 US jurisdictions, computed at each jurisdiction's own median household income. Free CSV and JSON.","isPartOf":{"@id":"https://hello532.github.io/paycheck-math/#website"},"about":{"@id":"https://hello532.github.io/paycheck-math/#organization"},"inLanguage":"en-US"}]}</script>
+
+
+
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="/paycheck-math/">Paycheck <span>Math</span></a>
+  <nav class="top">
+    <a href="/paycheck-math/paycheck-calculator/">Paycheck calculator</a>
+    <a href="/paycheck-math/salary-to-hourly/">Salary to hourly</a>
+    <a href="/paycheck-math/hourly-to-salary/">Hourly to salary</a>
+    <a href="/paycheck-math/after-taxes/">After taxes</a>
+    <a href="/paycheck-math/hourly-after-taxes/">After-tax hourly</a>
+  </nav>
+</div></header>
+<main><div class="wrap">
+
+<p class="crumb"><a href="/paycheck-math/">Home</a> › Open data</p>
+<h1>US Paycheck Tax by State — Open Dataset</h1>
+<p class="lede">How much of a typical paycheck is withheld in each US jurisdiction, computed at that jurisdiction's own median household income. <strong>51 rows</strong>, one methodology, free to reuse.</p>
+<div class="grid3">
+  <div class="card"><div class="k">Lowest</div><div class="v">Tennessee 16.59%</div></div>
+  <div class="card"><div class="k">Median of states</div><div class="v">20.92%</div></div>
+  <div class="card"><div class="k">Highest</div><div class="v">Washington DC 27.25%</div></div>
+</div>
+
+<p><strong>Download:</strong> <a href="/paycheck-math/data/paycheck-tax-by-state.csv">CSV</a> · <a href="/paycheck-math/data/paycheck-tax-by-state.json">JSON</a>. Licence: reuse freely with attribution to Paycheck Math.</p>
+
+<h2>Method</h2>
+<p>For each jurisdiction: gross = its median household income from the 2023 ACS one-year estimates, rounded to the nearest $100; deductions = 2026 federal income tax after the standard deduction, that state's own wage tax, Social Security at 6.2% up to $184,500 and Medicare at 1.45%. Single filer, no dependents, no pre-tax deductions. State personal exemptions and credits are excluded, so the state line is slightly overstated. That is the same engine the rest of this site uses.</p>
+
+<h2>The dataset</h2>
+<table>
+<thead><tr><th>#</th><th>State</th><th class="num">Median income</th><th class="num">Withheld</th><th class="num">Share</th><th class="num">Take-home</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-tennessee/">Tennessee</a></td><td class="num">$67,600</td><td class="num">$11,213</td><td class="num">16.59%</td><td class="num">$56,387</td></tr>
+<tr><td>2</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-south-dakota/">South Dakota</a></td><td class="num">$71,800</td><td class="num">$12,459</td><td class="num">17.35%</td><td class="num">$59,341</td></tr>
+<tr><td>3</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-wyoming/">Wyoming</a></td><td class="num">$72,400</td><td class="num">$12,637</td><td class="num">17.45%</td><td class="num">$59,763</td></tr>
+<tr><td>4</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-florida/">Florida</a></td><td class="num">$73,300</td><td class="num">$12,903</td><td class="num">17.6%</td><td class="num">$60,397</td></tr>
+<tr><td>5</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-texas/">Texas</a></td><td class="num">$75,800</td><td class="num">$13,645</td><td class="num">18%</td><td class="num">$62,155</td></tr>
+<tr><td>6</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-nevada/">Nevada</a></td><td class="num">$76,400</td><td class="num">$13,823</td><td class="num">18.09%</td><td class="num">$62,577</td></tr>
+<tr><td>7</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-louisiana/">Louisiana</a></td><td class="num">$58,200</td><td class="num">$10,616</td><td class="num">18.24%</td><td class="num">$47,584</td></tr>
+<tr><td>8</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-new-mexico/">New Mexico</a></td><td class="num">$62,300</td><td class="num">$11,824</td><td class="num">18.98%</td><td class="num">$50,476</td></tr>
+<tr><td>9</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-west-virginia/">West Virginia</a></td><td class="num">$55,900</td><td class="num">$10,676</td><td class="num">19.1%</td><td class="num">$45,224</td></tr>
+<tr><td>10</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-mississippi/">Mississippi</a></td><td class="num">$54,200</td><td class="num">$10,415</td><td class="num">19.22%</td><td class="num">$43,785</td></tr>
+<tr><td>11</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-ohio/">Ohio</a></td><td class="num">$67,800</td><td class="num">$13,137</td><td class="num">19.38%</td><td class="num">$54,663</td></tr>
+<tr><td>12</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-kentucky/">Kentucky</a></td><td class="num">$61,100</td><td class="num">$11,847</td><td class="num">19.39%</td><td class="num">$49,253</td></tr>
+<tr><td>13</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-arkansas/">Arkansas</a></td><td class="num">$58,700</td><td class="num">$11,460</td><td class="num">19.52%</td><td class="num">$47,240</td></tr>
+<tr><td>14</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-alaska/">Alaska</a></td><td class="num">$88,100</td><td class="num">$17,292</td><td class="num">19.63%</td><td class="num">$70,808</td></tr>
+<tr><td>15</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-north-dakota/">North Dakota</a></td><td class="num">$76,500</td><td class="num">$15,030</td><td class="num">19.65%</td><td class="num">$61,470</td></tr>
+<tr><td>16</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-indiana/">Indiana</a></td><td class="num">$69,500</td><td class="num">$13,827</td><td class="num">19.89%</td><td class="num">$55,673</td></tr>
+<tr><td>17</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-oklahoma/">Oklahoma</a></td><td class="num">$62,100</td><td class="num">$12,410</td><td class="num">19.98%</td><td class="num">$49,690</td></tr>
+<tr><td>18</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-missouri/">Missouri</a></td><td class="num">$68,500</td><td class="num">$13,789</td><td class="num">20.13%</td><td class="num">$54,711</td></tr>
+<tr><td>19</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-iowa/">Iowa</a></td><td class="num">$71,400</td><td class="num">$14,442</td><td class="num">20.23%</td><td class="num">$56,959</td></tr>
+<tr><td>20</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-washington/">Washington</a></td><td class="num">$94,600</td><td class="num">$19,219</td><td class="num">20.32%</td><td class="num">$75,381</td></tr>
+<tr><td>21</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-north-carolina/">North Carolina</a></td><td class="num">$70,800</td><td class="num">$14,478</td><td class="num">20.45%</td><td class="num">$56,322</td></tr>
+<tr><td>22</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-arizona/">Arizona</a></td><td class="num">$77,300</td><td class="num">$15,813</td><td class="num">20.46%</td><td class="num">$61,487</td></tr>
+<tr><td>23</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-new-hampshire/">New Hampshire</a></td><td class="num">$96,800</td><td class="num">$19,871</td><td class="num">20.53%</td><td class="num">$76,929</td></tr>
+<tr><td>24</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-pennsylvania/">Pennsylvania</a></td><td class="num">$73,800</td><td class="num">$15,317</td><td class="num">20.76%</td><td class="num">$58,483</td></tr>
+<tr><td>25</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-montana/">Montana</a></td><td class="num">$70,800</td><td class="num">$14,802</td><td class="num">20.91%</td><td class="num">$55,999</td></tr>
+<tr><td>26</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-south-carolina/">South Carolina</a></td><td class="num">$67,800</td><td class="num">$14,184</td><td class="num">20.92%</td><td class="num">$53,616</td></tr>
+<tr><td>27</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-michigan/">Michigan</a></td><td class="num">$69,200</td><td class="num">$14,629</td><td class="num">21.14%</td><td class="num">$54,571</td></tr>
+<tr><td>28</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-wisconsin/">Wisconsin</a></td><td class="num">$74,600</td><td class="num">$15,899</td><td class="num">21.31%</td><td class="num">$58,701</td></tr>
+<tr><td>29</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-nebraska/">Nebraska</a></td><td class="num">$74,600</td><td class="num">$15,980</td><td class="num">21.42%</td><td class="num">$58,620</td></tr>
+<tr><td>30</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-georgia/">Georgia</a></td><td class="num">$74,600</td><td class="num">$16,263</td><td class="num">21.8%</td><td class="num">$58,337</td></tr>
+<tr><td>31</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-idaho/">Idaho</a></td><td class="num">$74,900</td><td class="num">$16,494</td><td class="num">22.02%</td><td class="num">$58,406</td></tr>
+<tr><td>32</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-kansas/">Kansas</a></td><td class="num">$70,300</td><td class="num">$15,648</td><td class="num">22.26%</td><td class="num">$54,652</td></tr>
+<tr><td>33</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-rhode-island/">Rhode Island</a></td><td class="num">$85,000</td><td class="num">$19,140</td><td class="num">22.52%</td><td class="num">$65,860</td></tr>
+<tr><td>34</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-vermont/">Vermont</a></td><td class="num">$81,200</td><td class="num">$18,495</td><td class="num">22.78%</td><td class="num">$62,705</td></tr>
+<tr><td>35</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-maine/">Maine</a></td><td class="num">$73,700</td><td class="num">$17,175</td><td class="num">23.3%</td><td class="num">$56,525</td></tr>
+<tr><td>36</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-new-york/">New York</a></td><td class="num">$82,100</td><td class="num">$19,349</td><td class="num">23.57%</td><td class="num">$62,751</td></tr>
+<tr><td>37</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-illinois/">Illinois</a></td><td class="num">$80,300</td><td class="num">$18,954</td><td class="num">23.6%</td><td class="num">$61,346</td></tr>
+<tr><td>38</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-colorado/">Colorado</a></td><td class="num">$92,900</td><td class="num">$22,094</td><td class="num">23.78%</td><td class="num">$70,806</td></tr>
+<tr><td>39</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-delaware/">Delaware</a></td><td class="num">$82,200</td><td class="num">$19,781</td><td class="num">24.06%</td><td class="num">$62,420</td></tr>
+<tr><td>40</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-minnesota/">Minnesota</a></td><td class="num">$85,100</td><td class="num">$20,666</td><td class="num">24.28%</td><td class="num">$64,434</td></tr>
+<tr><td>41</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-utah/">Utah</a></td><td class="num">$93,400</td><td class="num">$23,019</td><td class="num">24.65%</td><td class="num">$70,381</td></tr>
+<tr><td>42</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-connecticut/">Connecticut</a></td><td class="num">$91,700</td><td class="num">$22,653</td><td class="num">24.7%</td><td class="num">$69,047</td></tr>
+<tr><td>43</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-virginia/">Virginia</a></td><td class="num">$89,900</td><td class="num">$22,234</td><td class="num">24.73%</td><td class="num">$67,666</td></tr>
+<tr><td>44</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-new-jersey/">New Jersey</a></td><td class="num">$99,800</td><td class="num">$24,993</td><td class="num">25.04%</td><td class="num">$74,807</td></tr>
+<tr><td>45</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-maryland/">Maryland</a></td><td class="num">$98,700</td><td class="num">$24,911</td><td class="num">25.24%</td><td class="num">$73,789</td></tr>
+<tr><td>46</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-california/">California</a></td><td class="num">$95,500</td><td class="num">$24,291</td><td class="num">25.44%</td><td class="num">$71,209</td></tr>
+<tr><td>47</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-massachusetts/">Massachusetts</a></td><td class="num">$99,900</td><td class="num">$25,785</td><td class="num">25.81%</td><td class="num">$74,115</td></tr>
+<tr><td>48</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-hawaii/">Hawaii</a></td><td class="num">$95,300</td><td class="num">$25,226</td><td class="num">26.47%</td><td class="num">$70,074</td></tr>
+<tr><td>49</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-oregon/">Oregon</a></td><td class="num">$80,200</td><td class="num">$21,393</td><td class="num">26.67%</td><td class="num">$58,807</td></tr>
+<tr><td>50</td><td><a href="/paycheck-math/how-much-tax-is-taken-out-of-paycheck-in-washington-dc/">Washington DC</a></td><td class="num">$108,200</td><td class="num">$29,480</td><td class="num">27.25%</td><td class="num">$78,720</td></tr>
+</tbody></table>
+<p class="byline">Generated 2026-10-20. Federal source: IRS Rev. Proc. 2025-32. State source: Tax Foundation 2026 table, with 2026 changes verified against state revenue departments for GA, MS, UT, NE. Income source: ACS 2023 1-year.</p>
+
+</div></main>
+<footer class="site"><div class="wrap">
+  <div>Paycheck Math — 2026 federal rates. Estimates only, not tax advice.</div>
+  <div>
+    <a href="/paycheck-math/about/">About</a> · <a href="/paycheck-math/methodology/">Methodology</a> ·
+    <a href="/paycheck-math/privacy/">Privacy</a> · <a href="/paycheck-math/contact/">Contact</a> ·
+    <a href="https://typing.rerivo.com/">Free typing speed test</a>
+  </div>
+</div></footer>
+<script type="module" src="/paycheck-math/assets/calc.js"></script>
+</body>
+</html>

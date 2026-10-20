@@ -141,7 +141,8 @@ ${body}
   <div>Paycheck Math — ${params.meta.tax_year} federal rates. Estimates only, not tax advice.</div>
   <div>
     <a href="/about/">About</a> · <a href="/methodology/">Methodology</a> ·
-    <a href="/privacy/">Privacy</a> · <a href="/contact/">Contact</a>
+    <a href="/privacy/">Privacy</a> · <a href="/contact/">Contact</a> ·
+    <a href="https://typing.rerivo.com/">Free typing speed test</a>
   </div>
 </div></footer>
 <script type="module" src="/assets/calc.js"></script>

@@ -211,3 +211,64 @@ were each matched to an official or primary source. Four were wrong and are now 
 Honest status: the build is complete and verified, but the traffic and revenue milestones are not
 achieved and cannot be claimed. The blockers are the user's: GSC property verification, an AdSense
 publisher ID, and Cloudflare DNS (or keeping GitHub Pages as the permanent host).
+
+
+## Scale calibration from real GSC data (2026-10-21)
+
+Measured, not estimated:
+
+- **typing.rerivo.com**: 5 clicks / 2,253 impressions / avg position 61.2 over 28 days.
+  Annualised that is roughly **29,000 impressions a year**. At its current 0.22% CTR the site would
+  need about 4.5 years of its present exposure to deliver 100k clicks in total.
+- **What 100k sessions/month actually requires**: at a realistic 2% CTR that is **~5,000,000
+  impressions a month**. The new site currently generates **zero** measured impressions.
+- The gap is therefore roughly **170× the entire annual exposure of the existing site**.
+
+Consequences worth stating plainly:
+
+1. Borrowing authority from typing.rerivo.com cannot close this. It can pass crawl attention, but the
+   volume is not there to pass.
+2. 1M sessions/month at 2% CTR would need ~50M impressions a month. That is a different order of
+   content and link footprint than a 1,233-page programmatic site on a shared GitHub Pages subdomain.
+3. The binding constraint is **rankings**, not page count: typing ranks at position 61 with 2,253
+   impressions, which is why CTR is 0.22%. Doubling pages would not move that.
+4. The honest next milestone remains **M2: 500k impressions/month** — and even that needs roughly
+   17× the impressions this account has ever produced.
+
+## GSC snapshots
+
+### GSC snapshot — https://typing.rerivo.com/ — 2026-10-21
+
+28-day window ending 3 days ago (GSC lag). Days with data: 18.
+
+- clicks: **5**
+- impressions: **2253**
+- impression-weighted avg position: **61.2**
+- clicks per 1,000 impressions: **2.22**
+
+| page | clicks | impressions | avg pos |
+|---|---:|---:|---:|
+| /1-minute-typing-test.html | 2 | 427 | 62.2 |
+| /10-minute-typing-test.html | 1 | 87 | 44.1 |
+| /30-second-typing-test.html | 1 | 36 | 46.2 |
+| /spanish-typing-test.html | 1 | 7 | 23.0 |
+| / | 0 | 139 | 62.5 |
+| /2-minute-typing-test.html | 0 | 33 | 40.0 |
+| /3-minute-typing-test.html | 0 | 132 | 72.3 |
+| /5-minute-typing-test.html | 0 | 80 | 33.0 |
+| /about.html | 0 | 8 | 3.6 |
+| /arabic-typing-test.html | 0 | 12 | 43.1 |
+
+| query | clicks | impressions | avg pos |
+|---|---:|---:|---:|
+| one minute typing test | 1 | 14 | 23.3 |
+| typing master 10 minutes | 1 | 2 | 142.0 |
+| typing test online 1 minute | 1 | 1 | 1.0 |
+| $wpm | 0 | 4 | 53.2 |
+| 'words per minute' | 0 | 2 | 81.0 |
+| 1 min typing test | 0 | 2 | 9.5 |
+| 1 minute speed typing test | 0 | 2 | 15.0 |
+| 1 minute type | 0 | 1 | 7.0 |
+| 1 minute type test | 0 | 1 | 14.0 |
+| 1 minute typing test | 0 | 27 | 46.7 |
+

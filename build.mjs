@@ -662,7 +662,7 @@ function aboutPage() {
 <h1>About Paycheck Math</h1>
 <p class="lede">Paycheck Math is a free calculator and reference site for US pay questions: what a salary is per hour, what a wage is per year, and what actually arrives after tax.</p>
 <h2>What we do</h2>
-<p>Every figure on this site is computed from published government rates, not copied from another calculator. Federal brackets and standard deductions come from the IRS, FICA rates and the Social Security wage base from the Social Security Administration, and state rules from each state's revenue department. Sources are listed on the <a href="/methodology/">methodology page</a>.</p>
+<p>Figures are computed from published rates rather than copied from another calculator: federal brackets and standard deductions from the IRS, FICA and the wage base from the Social Security Administration, and state rules from the Tax Foundation's state table plus, where they changed for 2026, the state revenue department. Where a state's 2026 bracket widths were not yet published, the page says so. Sources are listed on the <a href="/methodology/">methodology page</a>.</p>
 <h2>How to read the numbers</h2>
 <p>Take-home figures are estimates for a single filer with the standard deduction and no other pre-tax deductions. Real paychecks differ with 401(k) contributions, health insurance, dependents, credits and local taxes. Use these numbers to compare offers and states, then check your actual pay stub for the precise figure.</p>
 <h2>Corrections</h2>
@@ -678,7 +678,7 @@ function methodologyPage() {
   const body = `
 <p class="crumb"><a href="/">Home</a> › Methodology</p>
 <h1>Methodology and sources</h1>
-<p class="lede">No number on this site comes from memory. This page lists every rate, where it came from, and the exact arithmetic applied.</p>
+<p class="lede">Every rate on this site traces to a published government table, and the exceptions are labelled on the pages they affect. This page lists the sources and the exact arithmetic.</p>
 <h2>Federal income tax</h2>
 <p>Taxable income is gross wages minus the standard deduction of ${fmt(params.federal.standard_deduction.single)} (single), ${fmt(params.federal.standard_deduction.married)} (married filing jointly) or ${fmt(params.federal.standard_deduction.hoh)} (head of household). Marginal brackets are applied in bands:</p>
 <table>

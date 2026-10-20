@@ -190,7 +190,7 @@ Then add `https://pay.rerivo.com/` as a Search Console property and submit
   asymmetric. Checking the engine showed the step is symmetric at every tested income, so the
   claim was removed rather than dressed up.
 
-## Goal audit — 2026-10-20
+## Goal audit — 2026-10-21 (round 5)
 
 Checked against the objective as written, not against what was convenient:
 
@@ -234,6 +234,23 @@ Consequences worth stating plainly:
    impressions, which is why CTR is 0.22%. Doubling pages would not move that.
 4. The honest next milestone remains **M2: 500k impressions/month** — and even that needs roughly
    17× the impressions this account has ever produced.
+
+### Round 5 — what changed and what the data says
+
+- **Cross-links opened both ways.** typing.rerivo.com (131 pages, the only verified GSC property)
+  now links to Paycheck Math in its footer, and Paycheck Math links back. Both confirmed live with
+  the exact href. The structural gate on typing stayed 4/4 and the golden lock is unchanged,
+  because the footer is a single declared slot.
+- **A real GSC snapshot now lives in this file**, produced by `tools/gsc_snapshot.py` from the
+  Search API rather than typed by hand.
+- **The measurements kill the optimistic reading.** typing.rerivo.com: 5 clicks / 2,253
+  impressions / position 61.2 in 28 days. 100k sessions/month needs ~5,000,000 impressions at a 2%
+  CTR — about 170× the entire annual exposure of the existing site. Borrowing authority cannot
+  substitute for rankings.
+- **Copy that could not be defended was rewritten.** "No number on this site comes from memory" and
+  "every figure comes from published government rates" were false while six states still carried
+  2025 bracket widths. Both now state the sourced position and point at the disclosure.
+- **All 1,232 live URLs verified twice** with full GET responses: 1232/1232 return 200 both passes.
 
 ## GSC snapshots
 

@@ -118,6 +118,19 @@ calculator recalculates in a real browser and writes shareable URL state.
   detection actually uses. That exposed the real duplicate set: 91 hourly-by-state pairs at
   ~0.81, all between no-wage-tax states.
 
+## Live host: GitHub Pages (Cloudflare still pending)
+
+Because the Cloudflare token expired, the current build is live at
+**https://hello532.github.io/paycheck-math/** — 1,229 pages, 1,228 URLs in the sitemap, all on
+that host, canonical tags rewritten to match, calculator verified working under the subpath
+(`$61,346` → `$87,310` when the salary changes, URL state intact).
+
+Redeploy: `sh deploy-ghpages.sh`. Health: `SITE_ORIGIN=https://hello532.github.io BASE_PATH=/paycheck-math node tools/health.mjs`.
+
+IndexNow returned 403 `SiteVerificationNotCompleted` for the GitHub Pages subpath — verification
+for a shared domain takes time. It accepted the Cloudflare-hostname submission earlier, so once
+the domain moves back to `pay.rerivo.com` that channel works again.
+
 ## Deploy is blocked on Cloudflare credentials
 
 The Cloudflare OAuth token expired 2026-10-20T15:55Z and the stored refresh token is rejected

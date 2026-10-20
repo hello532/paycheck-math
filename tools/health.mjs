@@ -30,10 +30,19 @@ check("meta description under 160", (home.match(/name="description" content="([^
 check("json-ld present", home.includes("application/ld+json"), "");
 check("robots points to sitemap", (await (await fetch(`${BASE}/robots.txt`)).text()).includes(`${BASE}/sitemap.xml`), "");
 
+const statePageHtml = await (await fetch(`${BASE}/paycheck-calculator/tx/`)).text();
+check("state page has no NaN or undefined", !/NaN|undefined|\[object Object\]/.test(statePageHtml), "");
+check("state page sample salary differs by state", await (async () => {
+  const fl = await (await fetch(`${BASE}/paycheck-calculator/fl/`)).text();
+  const sampleOf = (h) => (h.match(/On a \$([\d,]+) salary/) || [])[1];
+  return sampleOf(statePageHtml) !== sampleOf(fl) && !!sampleOf(statePageHtml);
+})(), "");
+
 const tax = JSON.parse(fs.readFileSync(new URL("../data/tax_params.json", import.meta.url), "utf8"));
 const { computePaycheck } = await import("../src/tax.mjs");
 const c = computePaycheck(tax, 65000, "CA", "single");
 check("engine federal tax 65k CA single = 5620", Math.abs(c.federalTax - 5620) < 0.01, c.federalTax.toFixed(2));
+check("Washington has no wage tax", computePaycheck(tax, 75000, "WA", "single").stateTax === 0, "");
 check("engine SS capped at wage base", Math.abs(computePaycheck(tax, 400000, "TX", "single").socialSecurity - tax.fica.ss_wage_base * tax.fica.ss_rate) < 0.01, "");
 check("all 51 jurisdictions present", Object.keys(tax.states).length === 51, String(Object.keys(tax.states).length));
 

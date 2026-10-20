@@ -3,13 +3,13 @@
 > Free salary, hourly and take-home pay calculators for the United States, built on 2026 federal brackets and state income tax rules.
 
 ## Core pages
-- https://paycheck-math.pages.dev/paycheck-calculator/ — take-home pay by state
-- https://paycheck-math.pages.dev/salary-to-hourly/ — salary to hourly conversion
-- https://paycheck-math.pages.dev/hourly-to-salary/ — hourly to salary conversion
-- https://paycheck-math.pages.dev/after-taxes/ — salary after tax
-- https://paycheck-math.pages.dev/methodology/ — every rate and its source
+- https://pay.rerivo.com/paycheck-calculator/ — take-home pay by state
+- https://pay.rerivo.com/salary-to-hourly/ — salary to hourly conversion
+- https://pay.rerivo.com/hourly-to-salary/ — hourly to salary conversion
+- https://pay.rerivo.com/after-taxes/ — salary after tax
+- https://pay.rerivo.com/methodology/ — every rate and its source
 
 ## Facts
 - Federal standard deduction 2026: $16,100 single, $32,200 married.
 - FICA: Social Security 6.2% up to $184,500, Medicare 1.5%.
-- Pages: 812.
+- Pages: 1085.

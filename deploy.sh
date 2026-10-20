@@ -5,11 +5,20 @@ cd "$(dirname "$0")"
 ORIGIN="${SITE_ORIGIN:-https://paycheck-math.pages.dev}"
 
 python3 tools/build_state_params.py
+node tools/tax.test.mjs
 SITE_ORIGIN="$ORIGIN" node build.mjs
 SITE_ORIGIN="$ORIGIN" node build.mjs --check
+node tools/similarity.mjs
 
-TOKEN=$(grep -o 'oauth_token = "[^"]*"' "$HOME/Library/Preferences/.wrangler/config/default.toml" | sed 's/.*= "//;s/"//')
-CLOUDFLARE_API_TOKEN="$TOKEN" npx --yes wrangler@latest pages deploy public \
+CFG="$HOME/Library/Preferences/.wrangler/config/default.toml"
+EXP=$(grep -o 'expiration_time = "[^"]*"' "$CFG" | sed 's/.*= "//;s/"//')
+NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+if [[ "$NOW" > "$EXP" ]]; then
+  echo "Cloudflare OAuth token expired at $EXP." >&2
+  echo "Run 'npx wrangler login' once, then re-run this script." >&2
+  exit 2
+fi
+npx --yes wrangler@latest pages deploy public \
   --project-name paycheck-math --branch main --commit-dirty=true
 
 KEY=$(ls public | grep -E '^[0-9a-f]{32}\.txt$' | sed 's/\.txt$//')

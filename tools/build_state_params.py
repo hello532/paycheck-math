@@ -50,6 +50,7 @@ def main():
                 rows.append(cells)
 
     states = {}
+    capital_gains_only = set()
     for r in rows:
         if len(r) < 4:
             continue
@@ -61,8 +62,21 @@ def main():
             continue
         r_single = rate(r[1])
         floor = money(r[3])
-        if r_single is None:
-            states[CODES[clean]] = {"name": clean, "type": "none", "confidence": "high"}
+        if r_single is None or "capital gains" in " ".join(r[1:4]).lower():
+            states[CODES[clean]] = {
+                "name": clean,
+                "type": "none",
+                "confidence": "high",
+                "note": (
+                    "Applies to capital gains income only, not wages."
+                    if "capital gains" in " ".join(r[1:4]).lower()
+                    else None
+                ),
+            }
+            if states[CODES[clean]]["note"] is None:
+                del states[CODES[clean]]["note"]
+            else:
+                capital_gains_only.add(CODES[clean])
             continue
         sd = money(r[7]) if len(r) > 7 else None
         states[CODES[clean]] = {
@@ -78,7 +92,7 @@ def main():
             continue
         clean = re.sub(r"\s*\([^)]*\)", "", r[0][2:]).strip()
         code = CODES.get(clean)
-        if not code or code not in states:
+        if not code or code not in states or code in capital_gains_only:
             continue
         rt = rate(r[1])
         fl = money(r[3])

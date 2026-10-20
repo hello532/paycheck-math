@@ -972,19 +972,9 @@
     },
     "WA": {
       "name": "Washington",
-      "type": "brackets",
-      "brackets": [
-        {
-          "up_to": 1000000.0,
-          "rate": 0.07
-        },
-        {
-          "up_to": null,
-          "rate": 0.09
-        }
-      ],
-      "standard_deduction": 0,
-      "confidence": "high"
+      "type": "none",
+      "confidence": "high",
+      "note": "Applies to capital gains income only, not wages."
     },
     "WI": {
       "name": "Wisconsin",

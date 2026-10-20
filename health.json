@@ -48,9 +48,24 @@
       "detail": ""
     },
     {
+      "name": "state page has no NaN or undefined",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "state page sample salary differs by state",
+      "ok": false,
+      "detail": ""
+    },
+    {
       "name": "engine federal tax 65k CA single = 5620",
       "ok": true,
       "detail": "5620.00"
+    },
+    {
+      "name": "Washington has no wage tax",
+      "ok": true,
+      "detail": ""
     },
     {
       "name": "engine SS capped at wage base",
@@ -63,5 +78,7 @@
       "detail": "51"
     }
   ],
-  "failures": []
+  "failures": [
+    "state page sample salary differs by state: "
+  ]
 }

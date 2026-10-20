@@ -22,6 +22,8 @@ const calcJs = fs.readFileSync(path.join(ROOT, "src/calc.js"), "utf8");
 const taxJs = fs.readFileSync(path.join(ROOT, "src/tax.mjs"), "utf8");
 
 const STATE_CODES = Object.keys(params.states).sort();
+const NO_TAX_STATES = STATE_CODES.filter((c) => params.states[c].type === "none");
+const stateSlug = (c) => params.states[c].name.toLowerCase().replace(/\s+/g, "-");
 
 /* ── page shells ─────────────────────────────────────────────────────── */
 
@@ -480,7 +482,10 @@ ${ladderLinks(SALARIES, amount, (s) => `/${s}-a-year-after-taxes/`, (s) => `$${s
 
 function statePage(code) {
   const st = params.states[code];
-  const sample = 75000;
+  const NO_TAX = Object.keys(params.states).filter((s) => params.states[s].type === "none");
+  const stateRow = stateIncome.byState[st.name];
+  const stateMedian = stateRow && typeof stateRow.median === "number" ? stateRow.median : null;
+  const sample = stateMedian ? Math.round(stateMedian / 100) * 100 : 75000;
   const c = computePaycheck(params, sample, code, "single");
   const tx = computePaycheck(params, sample, "TX", "single");
   const slug = `/paycheck-calculator/${code.toLowerCase()}/`;
@@ -499,7 +504,7 @@ function statePage(code) {
 <p class="lede">${esc(st.name)} has <strong>${taxDesc}</strong>. On a $${sample.toLocaleString("en-US")} salary a single filer takes home about <strong>${fmt(c.net)}</strong> — ${fmt(c.net / 12)} a month${c.stateTax > 0 ? `, after ${fmt(c.stateTax)} of state income tax` : ""}.</p>
 ${c.stateNote ? `<div class="warn">${esc(c.stateNote)}</div>` : ""}
 <div class="grid3">
-  <div class="card"><div class="k">Take-home on $75k</div><div class="v">${fmt(c.net)}</div></div>
+  <div class="card"><div class="k">Take-home on ${fmt(sample)}</div><div class="v">${fmt(c.net)}</div></div>
   <div class="card"><div class="k">State tax</div><div class="v">${c.stateTax === 0 ? "$0" : fmt(c.stateTax)}</div></div>
   <div class="card"><div class="k">Effective rate</div><div class="v">${pct(c.effectiveRate)}</div></div>
 </div>
@@ -509,10 +514,13 @@ ${calculatorBlock({ defaultGross: sample, state: code, heading: `${esc(st.name)}
 <h2>How ${esc(st.name)} taxes wages</h2>
 ${
   st.type === "none"
-    ? `<p>${esc(st.name)} does not levy a tax on wage income, so your state withholding is zero. Federal income tax and FICA still apply — they are federal, not state, and every state pays them. That is why a no-income-tax state still withholds roughly ${pct(c.totalTax / sample)} of a $${sample.toLocaleString("en-US")} salary.</p>`
+    ? `<p>${esc(st.name)} does not levy a tax on wage income, so your state withholding is zero. Federal income tax and FICA still apply — they are federal, not state, and every state pays them. That is why a no-income-tax state still withholds roughly ${pct(c.totalTax / sample)} of a $${sample.toLocaleString("en-US")} salary.</p>
+<p class="byline">${esc(st.name)} is one of ${NO_TAX.length} jurisdictions with no wage income tax${st.note ? ` — ${st.note.replace(/\.$/, "").replace(/^Applies to /i, "")}` : ""}. The ${fmt(c.totalTax)} withheld here is entirely federal: ${fmt(c.federalTax)} income tax and ${fmt(c.fica)} FICA.</p>`
     : st.type === "flat"
-      ? `<p>${esc(st.name)} applies a flat ${pct(st.rate)} rate to taxable wages${st.standard_deduction ? ` after a ${fmt(st.standard_deduction)} standard deduction` : ""}. A flat rate means the percentage does not rise with income, but the dollar amount does: at $50,000 you pay about ${fmt(Math.max(0, 50000 - (st.standard_deduction || 0)) * st.rate)}, at $100,000 about ${fmt(Math.max(0, 100000 - (st.standard_deduction || 0)) * st.rate)}.</p>`
+      ? `<p>${esc(st.name)} applies a flat ${pct(st.rate)} rate to taxable wages${st.standard_deduction ? ` after a ${fmt(st.standard_deduction)} standard deduction` : ""}. A flat rate means the percentage does not rise with income, but the dollar amount does: at $50,000 you pay about ${fmt(Math.max(0, 50000 - (st.standard_deduction || 0)) * st.rate)}, at $100,000 about ${fmt(Math.max(0, 100000 - (st.standard_deduction || 0)) * st.rate)}.</p>
+<p class="byline">${esc(st.name)} is one of ${Object.values(params.states).filter((s) => s.type === "flat").length} states with a single wage-tax rate. Its first ${fmt(st.standard_deduction || 0)} of gross wages is untaxed${st.standard_deduction ? "" : " (no standard deduction applies, so tax runs from the first dollar)"}, which means the $${sample.toLocaleString("en-US")} salary pays state tax on ${fmt(Math.max(0, sample - (st.standard_deduction || 0)))}.</p>`
       : `<p>${esc(st.name)} uses progressive brackets, so only the income inside each band is taxed at that band's rate. On a $${sample.toLocaleString("en-US")} salary the state tax comes to ${fmt(c.stateTax)}, an effective ${pct(c.stateTax / sample)} — lower than the top bracket you reach.</p>
+<p class="byline">${esc(st.name)} taxes its first dollar at ${pct((st.brackets || [])[0]?.rate ?? 0)}; the band containing $${sample.toLocaleString("en-US")} starts at ${fmt((st.brackets || []).filter((b) => (b.up_to ?? Infinity) >= Math.max(0, sample - (st.standard_deduction || 0)))[0]?.floor ?? 0)} and charges ${pct((st.brackets || []).filter((b) => (b.up_to ?? Infinity) >= Math.max(0, sample - (st.standard_deduction || 0)))[0]?.rate ?? 0)}. Going from $${sample.toLocaleString("en-US")} to $${(sample * 1.25).toLocaleString("en-US")} adds ${fmt(computePaycheck(params, sample * 1.25, code).stateTax - c.stateTax)} of state tax.</p>
 <table>
 <thead><tr><th>Up to</th><th class="num">Rate</th></tr></thead>
 <tbody>
@@ -534,7 +542,10 @@ ${(st.brackets || []).map((b) => `<tr><td>${b.up_to == null ? "and above" : fmt(
 <div class="note">Against Texas (no wage tax) the same $75,000 nets ${fmt(tx.net)}. ${esc(st.name)} comes out ${c.net >= tx.net ? `${fmt(c.net - tx.net)} ahead` : `${fmt(tx.net - c.net)} behind`}.</div>
 
 ${stateFactsBlock(code, sample)}
-
+${stateSpecificBlock(code, sample)}
+${stateIncomeBlock(code, sample)}
+${noTaxComparisonBlock(code, sample)}
+${uniqueFactsBlock({ gross: sample, state: code })}
 <h2>Other states</h2>
 <ul class="links">
 ${STATE_CODES.map((s) => `<li><a href="/paycheck-calculator/${s.toLowerCase()}/">${esc(params.states[s].name)}</a></li>`).join("\n")}
@@ -763,12 +774,10 @@ ${["TX", "FL", "WA", "CA", "NY", "IL", "GA", "NJ"]
   })
   .join("\n")}
 </tbody></table>
-<p><a href="/${rate}-an-hour-after-taxes-in-texas/">$${rate} an hour after taxes in Texas →</a></p>
 <h2>Compare by state</h2>
+<p>${NO_TAX_STATES.length} states have no wage income tax — ${NO_TAX_STATES.map((c) => params.states[c].name).join(", ")}. All of them produce the identical take-home figure at this rate, so any of those state pages shows the same number. The difference appears only in states that tax wages.</p>
 <ul class="links">
-  <li><a href="/${rate}-an-hour-after-taxes-in-texas/">$${rate} an hour in Texas</a></li>
-  <li><a href="/${rate}-an-hour-after-taxes-in-california/">$${rate} an hour in California</a></li>
-  <li><a href="/${rate}-an-hour-after-taxes-in-florida/">$${rate} an hour in Florida</a></li>
+  <li><a href="/${rate}-an-hour-after-taxes-in-california/">${rate} an hour in California (progressive)</a></li>
   <li><a href="/hourly-after-taxes/">All hourly after-tax pages</a></li>
   <li><a href="/hourly-after-taxes-by-state/">By state</a></li>
 </ul>
@@ -834,6 +843,10 @@ function hourlyStatePage(rate, code) {
 </tbody></table>
 ${c.stateNote ? `<div class="warn">${esc(c.stateNote)}</div>` : ""}
 ${adsSlot()}
+${uniqueFactsBlock({ gross: annualFromHourly(rate, 40), state: code, rate })}
+${stateSpecificBlock(code, annualFromHourly(rate, 40))}
+${stateIncomeBlock(code, annualFromHourly(rate, 40))}
+${noTaxComparisonBlock(code, annualFromHourly(rate, 40))}
 <h2>Compare</h2>
 <ul class="links">
   <li><a href="/${rate}-an-hour-after-taxes/">$${rate} an hour after tax (California)</a></li>
@@ -991,6 +1004,7 @@ function stateFactsBlock(code, amount) {
   const tx = computePaycheck(params, amount, "TX", "single");
   const diff = c.net - tx.net;
   const marginal = 1 - (computePaycheck(params, amount + 1000, code, "single").net - c.net) / 1000;
+  const stTaxableName = st.type === "none" ? "none" : "tax";
   return `<h2>What is specific to ${esc(st.name)} here</h2>
 <p>Your marginal rate — what you lose on the next dollar earned — is <strong>${pct(marginal)}</strong> in ${esc(st.name)}, against ${pct(1 - (computePaycheck(params, amount + 1000, "TX", "single").net - tx.net) / 1000)} in Texas. That is the number that matters for overtime, a raise or a second job.</p>
 <table>
@@ -1000,7 +1014,195 @@ function stateFactsBlock(code, amount) {
 <tr><td>Take-home</td><td class="num">${fmt(c.net)}</td><td class="num">${fmt(tx.net)}</td><td class="num">${diff >= 0 ? "+" : "−"}${fmt(Math.abs(diff))}</td></tr>
 <tr><td>Monthly</td><td class="num">${fmt(c.net / 12)}</td><td class="num">${fmt(tx.net / 12)}</td><td class="num">${diff >= 0 ? "+" : "−"}${fmt(Math.abs(diff) / 12)}</td></tr>
 </tbody></table>
-<p>${c.stateTax === 0 ? `${esc(st.name)} is one of eight states with no tax on wage income.` : `Over a working year that is ${fmt(Math.abs(diff) / 12)} a month of difference on the same gross salary.`}</p>`;
+<p>${c.stateTax === 0 ? `${esc(st.name)} is one of ${Object.values(params.states).filter((s) => s.type === "none").length} jurisdictions with no wage income tax${st.note ? ` (its income tax covers ${st.note.replace(/\.$/, "").replace(/^Applies to /i, "").toLowerCase()})` : ""}.` : `Over a working year that is ${fmt(Math.abs(diff) / 12)} a month of difference on the same gross salary.`}</p>`;
+}
+
+function bracketPosition(gross, state, filing = "single") {
+  const st = params.states[state];
+  const fedBrackets = params.federal.brackets[filing];
+  const fedTaxable = Math.max(0, gross - params.federal.standard_deduction[filing]);
+  let fedTop = null;
+  let fedRate = fedBrackets[0].rate;
+  for (const b of fedBrackets) {
+    if (fedTaxable <= (b.up_to ?? Infinity)) { fedRate = b.rate; fedTop = b.up_to; break; }
+  }
+  let stTop = null;
+  let stRate = null;
+  if (st && st.type === "brackets") {
+    const stTaxable = Math.max(0, gross - (st.standard_deduction || 0));
+    for (const b of st.brackets) {
+      if (stTaxable <= (b.up_to ?? Infinity)) { stRate = b.rate; stTop = b.up_to; break; }
+    }
+  } else if (st && st.type === "flat") {
+    stRate = st.rate;
+  }
+  return { fedRate, fedTop, stRate, stTop, fedTaxable };
+}
+
+function uniqueFactsBlock({ gross, state, rate = null }) {
+  const st = params.states[state];
+  const pos = bracketPosition(gross, state);
+  const c = computePaycheck(params, gross, state, "single");
+  const fedStarts = params.federal.standard_deduction.single;
+  const stateStarts = st && st.type !== "none" ? st.standard_deduction || 0 : 0;
+  const toNextFed = pos.fedTop && pos.fedTop !== null ? Math.max(0, pos.fedTop - pos.fedTaxable) : null;
+
+  const ladder = [0.6, 0.8, 1.0, 1.2, 1.4].map((f) => {
+    const g = Math.round((gross * f) / 100) * 100;
+    const r = computePaycheck(params, g, state, "single");
+    return { g, net: r.net, eff: r.effectiveRate };
+  });
+
+  const hoursRows = rate
+    ? [20, 30, 40, 50].map((h) => {
+        const g = annualFromHourly(rate, h);
+        const r = computePaycheck(params, g, state, "single");
+        return { h, g, net: r.net, perHour: r.net / (h * 52) };
+      })
+    : [];
+
+  const otGross = gross + (rate ? rate * 1.5 * 5 * 52 : 0);
+  const ot = rate ? computePaycheck(params, otGross, state, "single") : null;
+
+  return `<h2>${rate ? `The tax structure you hit at $${rate}/hour in ${esc(st.name)}` : `Where ${esc(st.name)} income sits in the tax structure`}</h2>
+<p>Your first ${fmt(fedStarts)} of gross pay is covered by the federal standard deduction, so federal income tax starts above that line. ${stateStarts > 0 ? `${esc(st.name)} adds its own ${fmt(stateStarts)} deduction before state tax starts.` : st.type === "none" ? `${esc(st.name)} has no state income tax at all, so only the federal threshold applies.` : `${esc(st.name)} has no standard deduction for this calculation, so state tax applies from the first dollar.`}</p>
+<table>
+<thead><tr><th>Threshold</th><th class="num">Gross where it starts</th></tr></thead>
+<tbody>
+<tr><td>Federal income tax</td><td class="num">${fmt(fedStarts)}</td></tr>
+<tr><td>${esc(st.name)} income tax</td><td class="num">${st.type === "none" ? "does not apply" : fmt(stateStarts)}</td></tr>
+<tr><td>Social Security (${pct(params.fica.ss_rate)})</td><td class="num">first dollar</td></tr>
+<tr><td>Social Security stops</td><td class="num">${fmt(params.fica.ss_wage_base)}</td></tr>
+</tbody></table>
+<p>At ${fmt(gross)} you are in the <strong>${pct(pos.fedRate)} federal bracket</strong>${pos.stRate ? ` and the <strong>${pct(pos.stRate)} ${esc(st.name)} bracket</strong>` : st.type === "none" ? ` and pay nothing to ${esc(st.name)}` : ` at a flat ${pct(pos.stRate || 0)}`}. ${toNextFed && toNextFed > 0 ? `You are ${fmt(toNextFed)} of taxable income away from the next federal bracket.` : "You are already in the top federal bracket."}</p>
+
+<h2>Net pay across the income range</h2>
+<p>The same ${esc(st.name)} rules applied at five different gross levels, so you can see how the effective rate climbs:</p>
+<table>
+<thead><tr><th>Gross</th><th class="num">Take-home</th><th class="num">Effective rate</th></tr></thead>
+<tbody>
+${ladder.map((r) => `<tr><td>${fmt(r.g)}</td><td class="num">${fmt(r.net)}</td><td class="num">${pct(r.eff)}</td></tr>`).join("\n")}
+</tbody></table>
+${
+  rate
+    ? `<h2>Part time versus full time at $${rate} an hour</h2>
+<table>
+<thead><tr><th>Hours per week</th><th class="num">Gross</th><th class="num">Take-home</th><th class="num">Net per hour worked</th></tr></thead>
+<tbody>
+${hoursRows.map((r) => `<tr><td>${r.h}</td><td class="num">${fmt(r.g)}</td><td class="num">${fmt(r.net)}</td><td class="num">${usd2(r.perHour)}</td></tr>`).join("\n")}
+</tbody></table>
+<p>Net per hour worked rises as hours fall, because a smaller gross means less of it crosses into higher brackets. Going from 50 hours to 20 raises the net value of each hour by ${usd2(hoursRows[0].perHour - hoursRows[3].perHour)}.</p>
+
+<h2>What five hours of overtime actually adds</h2>
+<p>At time-and-a-half, five extra hours a week is ${fmt(rate * 1.5 * 5 * 52)} more gross a year. After federal tax${st.type === "none" ? "" : `, ${esc(st.name)} tax`} and FICA, that lands as <strong>${fmt(ot.net - c.net)}</strong> — about ${usd2((ot.net - c.net) / 260)} for each of those extra hours.</p>`
+    : ""
+}<h2>What this page does not model</h2>
+<p>Single filer, standard deduction, no 401(k), no health premium, no dependents, no local or city income tax, and state credits and personal exemptions are excluded — which means the state figure is a slight overstatement. Self-employment would double the FICA share.</p>`;
+}
+
+const stateFacts = JSON.parse(fs.readFileSync(path.join(ROOT, "data/state_facts.json"), "utf8"));
+
+function stateSpecificBlock(code, sample) {
+  const f = stateFacts[code] || {};
+  const st = params.states[code];
+  const lines = [];
+  if (f.noWageTax) {
+    lines.push(`<li><strong>No wage income tax.</strong> ${esc(st.name)} does not tax wages${st.note ? ` — its income tax covers ${st.note.replace(/\.$/, "").replace(/^Applies to /i, "")}` : ""}.</li>`);
+  }
+  if (f.addedLocalIncomeTax) {
+    lines.push(`<li><strong>Local income taxes add about ${f.addedLocalIncomeTax}% of AGI</strong> on average in ${esc(st.name)}, on top of the state rate. County and city taxes are excluded from the calculator above.</li>`);
+  }
+  if (f.localPayrollTax) {
+    lines.push(`<li><strong>Some cities and counties levy their own payroll or wage taxes</strong> in ${esc(st.name)}. Those are local, not state, and excluded here.</li>`);
+  }
+  if (f.deductsFederalTax) {
+    lines.push(`<li><strong>Federal income tax is deductible on the state return.</strong> ${esc(st.name)} lets filers subtract some or all federal tax paid from state taxable income, which lowers the real state bill below what the flat table shows.</li>`);
+  }
+  if (f.includesFederalStandardDeduction) {
+    lines.push(`<li><strong>The state income starting point includes the federal standard deduction.</strong> ${esc(st.name)} builds its state taxable income on top of the federal figure, so the ${fmt(params.federal.standard_deduction.single)} federal deduction is already reflected.</li>`);
+  }
+  if (st.type === "none" && !f.noWageTax) {
+    lines.push(`<li><strong>No wage income tax applies to this salary.</strong></li>`);
+  }
+  const width = st.type === "brackets" ? st.brackets.length : st.type === "flat" ? 1 : 0;
+  if (width > 1) {
+    lines.push(`<li><strong>${width} income bands.</strong> The top band starts at ${fmt(st.brackets[width - 2]?.up_to ?? 0)} of taxable income and charges ${pct(st.brackets[width - 1].rate)}.</li>`);
+  }
+  lines.push(`<li><strong>Social Security stops at ${fmt(params.fica.ss_wage_base)} of wages.</strong> ${sample >= params.fica.ss_wage_base ? `At ${fmt(sample)} you are above that line, so the 6.2% stops partway through the year.` : `At ${fmt(sample)} you are below that line, so the full 6.2% applies to every paycheck.`}</li>`);
+  return `<h2>What is different about ${esc(st.name)}</h2>\n<ul>${lines.map((l) => `\n  ${l}`).join("")}\n</ul>`;
+}
+
+const stateIncome = JSON.parse(fs.readFileSync(path.join(ROOT, "data/state_income.json"), "utf8"));
+
+function incomeTier(gross, st) {
+  if (gross >= st.p80) return "top 20%";
+  if (gross >= st.p60) return "60th-80th percentile";
+  if (gross >= st.median) return "40th-60th percentile";
+  if (gross >= st.p40) return "20th-40th percentile";
+  return "bottom 20%";
+}
+
+function stateIncomeBlock(code, gross) {
+  const st = params.states[code];
+  const d = stateIncome.byState[st.name];
+  if (!d) return "";
+  const nat = stateIncome.national;
+  const ranked = Object.entries(stateIncome.byState).sort((a, b) => b[1].median - a[1].median);
+  const rank = ranked.findIndex(([n]) => n === st.name) + 1;
+  const ratio = gross / d.median;
+  const natRatio = gross / nat.median;
+  const spread = d.p80 / d.p20;
+  const natSpread = nat.p80 / nat.p20;
+  const gapLine = gross < d.median ? `${fmt(d.median - gross)} below the state midpoint` : `${fmt(gross - d.median)} above it`;
+  return `<h2>Where ${fmt(gross)} lands in ${esc(st.name)}</h2>
+<p>${esc(st.name)} households have a median income of <strong>${fmt(d.median)}</strong>, ranking <strong>${rank} of ${ranked.length}</strong> jurisdictions against a national median of ${fmt(nat.median)}. A gross salary of ${fmt(gross)} is <strong>${(ratio * 100).toFixed(0)}% of the ${esc(st.name)} median</strong> and ${(natRatio * 100).toFixed(0)}% of the national one — ${gapLine}.</p>
+<p>By percentile, that puts a single earner in the <strong>${incomeTier(gross, d)}</strong> of ${esc(st.name)} households. Read this as a rough marker, not an exact position: the percentiles count whole households, which often have two earners, while this salary is one person's gross.</p>
+<table>
+<thead><tr><th>${esc(st.name)} household percentile</th><th class="num">Income</th><th class="num">${fmt(gross)} is</th></tr></thead>
+<tbody>
+<tr><td>20th</td><td class="num">${fmt(d.p20)}</td><td class="num">${(gross / d.p20 * 100).toFixed(0)}%</td></tr>
+<tr><td>40th</td><td class="num">${fmt(d.p40)}</td><td class="num">${(gross / d.p40 * 100).toFixed(0)}%</td></tr>
+<tr><td>median (50th)</td><td class="num">${fmt(d.median)}</td><td class="num">${(ratio * 100).toFixed(0)}%</td></tr>
+<tr><td>60th</td><td class="num">${fmt(d.p60)}</td><td class="num">${(gross / d.p60 * 100).toFixed(0)}%</td></tr>
+<tr><td>80th</td><td class="num">${fmt(d.p80)}</td><td class="num">${(gross / d.p80 * 100).toFixed(0)}%</td></tr>
+</tbody></table>
+<p>${esc(st.name)}'s 80th percentile household earns <strong>${spread.toFixed(2)}×</strong> its 20th percentile — ${spread > 5 ? "one of the widest gaps" : spread > 4.5 ? "a wide gap" : spread > 4 ? "a moderate gap" : "a narrower gap"} against the national ${natSpread.toFixed(2)}.</p>
+<p class="byline">Source: ${stateIncome.measure}, ${stateIncome.year}. ${stateIncome.source_note}</p>`;
+}
+
+function noTaxComparisonBlock(code, gross) {
+  const st = params.states[code];
+  if (st.type !== "none") return "";
+  const ranked = Object.entries(stateIncome.byState).sort((a, b) => b[1].median - a[1].median);
+  const rank = ranked.findIndex(([n]) => n === st.name) + 1;
+  const peerCodes = Object.keys(params.states).filter((c) => params.states[c].type === "none" && c !== code);
+  const peerRows = peerCodes
+    .map((c) => {
+      const name = params.states[c].name;
+      const inc = stateIncome.byState[name];
+      return { c, name, inc, net: computePaycheck(params, gross, c, "single").net };
+    })
+    .sort((a, b) => (b.inc ? b.inc.median : 0) - (a.inc ? a.inc.median : 0))
+    .map((x) => `<tr><td>${esc(x.name)}</td><td class="num">${x.inc ? fmt(x.inc.median) : "—"}</td><td class="num">${fmt(x.net)}</td></tr>`)
+    .join("\n");
+  const highTax = ["CA", "NY", "NJ", "OR"]
+    .map((c) => ({ name: params.states[c].name, tax: computePaycheck(params, gross, c, "single").stateTax }))
+    .sort((a, b) => b.tax - a.tax);
+  return `<h2>If ${esc(st.name)} taxed wages like other states</h2>
+<p>${esc(st.name)} takes nothing from this ${fmt(gross)} salary. The table is hypothetical — it applies another state's wage tax to the same income, so the absence of a state tax becomes a number instead of an adjective:</p>
+<table>
+<thead><tr><th>Taxed as if you lived in</th><th class="num">State tax on ${fmt(gross)}</th><th class="num">Kept by living in ${esc(st.name)}</th></tr></thead>
+<tbody>
+${highTax.map((h) => `<tr><td>${esc(h.name)}</td><td class="num">${fmt(h.tax)}</td><td class="num">${fmt(h.tax)}</td></tr>`).join("\n")}
+</tbody></table>
+<p>Against ${esc(highTax[0].name)} the saving is ${fmt(highTax[0].tax)} a year, or ${fmt(highTax[0].tax / 12)} a month — and it scales with salary, unlike a fixed deduction.</p>
+<h2>Other states with no wage tax</h2>
+<p>${esc(st.name)} ranks ${rank} of ${ranked.length} by median household income. On the same ${fmt(gross)} gross:</p>
+<table>
+<thead><tr><th>State (no wage tax)</th><th class="num">Median household (${stateIncome.year})</th><th class="num">Take-home on ${fmt(gross)}</th></tr></thead>
+<tbody>
+${peerRows}
+</tbody></table>`;
 }
 
 /* ── assemble ────────────────────────────────────────────────────────── */
@@ -1058,24 +1260,24 @@ pages.push(
 pages.push({
   slug: "/hourly-after-taxes-by-state/",
   html: layout({
-    title: "Hourly Pay After Taxes by State — Texas, California, Florida",
-    desc: "Take-home pay per hour in Texas, California and Florida, from $10 to $100 an hour, with federal tax and FICA included.",
+    title: "Hourly Pay After Taxes by State — Six Taxing States",
+    desc: "Take-home pay per hour in California, New York, Illinois, New Jersey, Georgia and Massachusetts, from $10 to $100 an hour.",
     slug: "/hourly-after-taxes-by-state/",
     breadcrumb: [{ name: "Home", href: "/" }, { name: "Hourly after taxes by state", href: "/hourly-after-taxes-by-state/" }],
     body: `
 <p class="crumb"><a href="/">Home</a> › Hourly after taxes by state</p>
 <h1>Hourly Pay After Taxes, by State</h1>
-<p class="lede">The same hourly wage lands differently depending on where you work. Texas and Florida take no state income tax on wages; California does. Pick a rate to see the exact take-home figure in each.</p>
-${["TX", "CA", "FL"]
+<p class="lede">The same hourly wage lands differently depending on where you work. Nine states take no wage income tax and share one figure; the six below tax wages in different ways, so each has its own numbers.</p>
+${["CA", "NY", "IL", "NJ", "GA", "MA"]
   .map(
     (code) => `<h2>${esc(params.states[code].name)}</h2>
 <ul class="links">
 ${HOURLY.filter((r) => r >= 10 && Number.isInteger(r))
-  .map((r) => `<li><a href="/${r}-an-hour-after-taxes-in-${params.states[code].name.toLowerCase().replace(/\s+/g, "-")}/">$${r} an hour</a></li>`)
-  .join("\n")}
+  .map((r) => `<li><a href="/${r}-an-hour-after-taxes-in-${stateSlug(code)}/">$${r} an hour</a></li>`)
+  .join("\\n")}
 </ul>`
   )
-  .join("\n")}
+  .join("\\n")}
 <p><a href="/hourly-after-taxes/">All hourly after-tax pages →</a> · <a href="/paycheck-calculator/">Paycheck calculator by state →</a></p>
 `,
   }),
@@ -1088,9 +1290,9 @@ for (const c of STATE_CODES) pages.push(statePage(c));
 
 const HOURLY_TAX = HOURLY.filter((r) => r >= 10 && Number.isInteger(r));
 for (const r of HOURLY_TAX) pages.push(hourlyAfterTaxPage(r));
-for (const r of HOURLY_TAX) pages.push(hourlyStatePage(r, "TX"));
-for (const r of HOURLY_TAX) pages.push(hourlyStatePage(r, "CA"));
-for (const r of HOURLY_TAX) pages.push(hourlyStatePage(r, "FL"));
+for (const code of ["CA", "NY", "IL", "NJ", "GA", "MA"]) {
+  for (const r of HOURLY_TAX) pages.push(hourlyStatePage(r, code));
+}
 for (const s of GOOD_SALARIES) pages.push(goodSalaryPage(s));
 
 /* sitemap + robots + llms.txt */
@@ -1151,6 +1353,24 @@ files.set(path.join(OUT, "assets/calc.js"), calcJs);
 files.set(path.join(OUT, "assets/tax.mjs"), taxJs);
 files.set(path.join(OUT, "assets/tax-params.json"), JSON.stringify(params));
 
+const keep = new Set(files.keys());
+let pruned = 0;
+if (write && fs.existsSync(OUT)) {
+  const walk = (dir) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) {
+        walk(full);
+        if (fs.readdirSync(full).length === 0) fs.rmdirSync(full);
+      } else if (!keep.has(full)) {
+        fs.unlinkSync(full);
+        pruned++;
+      }
+    }
+  };
+  walk(OUT);
+}
+
 let mismatches = 0;
 for (const [file, content] of files) {
   if (write) {
@@ -1188,5 +1408,5 @@ if (!write) {
   if (mismatches === 0 && bad.length === 0) console.log(`OK: ${pages.length} pages match src/`);
   process.exitCode = mismatches || bad.length ? 1 : 0;
 } else {
-  console.log(`Built ${pages.length} pages into public/ (${files.size} files, ${bad.length} broken links)`);
+  console.log(`Built ${pages.length} pages into public/ (${files.size} files, ${bad.length} broken links, ${pruned} stale pruned)`);
 }

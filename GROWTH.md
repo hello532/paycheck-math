@@ -99,6 +99,24 @@ calculator recalculates in a real browser and writes shareable URL state.
 | Date | Pages | GSC impressions | GSC clicks | Notes |
 |---|---|---|---|---|
 | 2026-10-20 | 812 | n/a (new site) | n/a | Built and deployed to paycheck-math.pages.dev; 811 sitemap URLs accepted by IndexNow (HTTP 200). Health gate 12/12. No organic traffic yet by design. |
+| 2026-10-20 (r2) | 1085 | n/a | n/a | Local only — Cloudflare OAuth expired before deploy. Removed 182 duplicate hourly-by-state pages (9 no-wage-tax states produce identical take-home, so one shared figure replaced nine copies), added 6 taxing states (CA/NY/IL/NJ/GA/MA) at 91 rates each where the numbers genuinely differ. Added per-state income percentiles, local-tax facts, and a 5-gram similarity gate (max 0.571, mean 0.191). |
+
+## Round 2 defects found and fixed
+
+- **Washington was taxed as if it had a wage income tax.** The Tax Foundation table marks WA
+  "capital gains income only", but the parser read its 7%/9% rows as wage brackets, so every
+  Washington page overstated state tax. Now parsed as no-wage-tax with the capital gains note.
+  A test pins it.
+- **NaN salaries on all 51 state pages.** When the income dataset changed from a number to an
+  object, `stateIncome.byState[name]` became an object and `Math.round(obj/100)` produced NaN,
+  so every state page said "On a $NaN salary". Fixed, and the health gate now fails on NaN.
+- **Build did not prune stale output.** Deleting 182 pages left their directories in `public/`,
+  so removed pages would have stayed live. The build now prunes files that are no longer
+  generated.
+- **Similarity measured the wrong unit.** Word-level Jaccard read 0.8 on pages that share
+  vocabulary but not sentences. Switched to 5-gram shingles, which is what duplicate-content
+  detection actually uses. That exposed the real duplicate set: 91 hourly-by-state pairs at
+  ~0.81, all between no-wage-tax states.
 
 ## Domain — the one thing that needs you
 

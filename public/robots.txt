@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://pay.rerivo.com/sitemap.xml
+Sitemap: https://paycheck-math.pages.dev/sitemap.xml

@@ -1067,6 +1067,7 @@ for (const p of pages) {
 files.set(path.join(OUT, "sitemap.xml"), sitemap);
 files.set(path.join(OUT, "robots.txt"), robots);
 files.set(path.join(OUT, "llms.txt"), llms);
+files.set(path.join(OUT, "d3b27220b2e09fc3488db3f7724ae3cc.txt"), "d3b27220b2e09fc3488db3f7724ae3cc\n");
 files.set(path.join(OUT, "assets/style.css"), css);
 files.set(path.join(OUT, "assets/calc.js"), calcJs);
 files.set(path.join(OUT, "assets/tax.mjs"), taxJs);

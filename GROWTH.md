@@ -77,4 +77,42 @@ not a claim about the present.
 
 | Date | Pages | GSC impressions | GSC clicks | Notes |
 |---|---|---|---|---|
-| 2026-10-20 | 428 | n/a (new site) | n/a | Built and deployed to paycheck-math.pages.dev |
+| 2026-10-20 | 810 | n/a (new site) | n/a | Built and deployed to paycheck-math.pages.dev; 809 URLs accepted by IndexNow (HTTP 200) |
+
+## Domain — the one thing that needs you
+
+`pay.rerivo.com` is already attached to the Pages project and waiting on DNS. The Cloudflare
+OAuth token on this machine has `zone:read` but not `dns:edit`, so the record cannot be created
+from here (API returns 403). Two ways to finish it:
+
+1. **Cloudflare dashboard** (30 seconds): rerivo.com → DNS → Records → Add record.
+   Type `CNAME`, name `pay`, target `paycheck-math.pages.dev`, proxy **on**. The Pages project
+already has the domain attached, so the certificate issues on its own.
+2. **A token with DNS edit**: create a Cloudflare API token scoped to Zone → DNS → Edit for
+   rerivo.com, then:
+   ```
+   curl -X POST "https://api.cloudflare.com/client/v4/zones/ab9f8a1d3afa14e3c70008c3d7ad7c07/dns_records" \
+     -H "Authorization: Bearer $CF_TOKEN" -H "Content-Type: application/json" \
+     -d '{"type":"CNAME","name":"pay","content":"paycheck-math.pages.dev","proxied":true}'
+   ```
+
+After the record resolves, redeploy with the real origin so canonical tags and the sitemap match
+the public domain:
+
+```
+SITE_ORIGIN=https://pay.rerivo.com sh deploy.sh
+```
+
+Then add `https://pay.rerivo.com/` as a Search Console property and submit
+`https://pay.rerivo.com/sitemap.xml`.
+
+## Verified defects found and fixed during the build
+
+- **Soft 404s**: Cloudflare Pages served the homepage with HTTP 200 for any unknown path, which
+  would have let Google index unlimited near-duplicate URLs. A real `404.html` now returns 404.
+- **Wrong canonical host**: the sitemap and canonical tags pointed at `pay.rerivo.com` while the
+  only live host was `paycheck-math.pages.dev`, so every submitted URL would have failed domain
+  verification. The build now takes `SITE_ORIGIN` and the deployed output matches the live host.
+- **Unverifiable copy**: an early draft claimed a bracket boundary made +$1,000 and −$1,000
+  asymmetric. Checking the engine showed the step is symmetric at every tested income, so the
+  claim was removed rather than dressed up.

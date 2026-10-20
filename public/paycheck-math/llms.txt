@@ -1,0 +1,15 @@
+# Paycheck Math
+
+> Free salary, hourly and take-home pay calculators for the United States, built on 2026 federal brackets and state income tax rules.
+
+## Core pages
+- https://hello532.github.io/paycheck-math/paycheck-calculator/ — take-home pay by state
+- https://hello532.github.io/paycheck-math/salary-to-hourly/ — salary to hourly conversion
+- https://hello532.github.io/paycheck-math/hourly-to-salary/ — hourly to salary conversion
+- https://hello532.github.io/paycheck-math/after-taxes/ — salary after tax
+- https://hello532.github.io/paycheck-math/methodology/ — every rate and its source
+
+## Facts
+- Federal standard deduction 2026: $16,100 single, $32,200 married.
+- FICA: Social Security 6.2% up to $184,500, Medicare 1.5%.
+- Pages: 1229.

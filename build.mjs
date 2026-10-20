@@ -14,7 +14,14 @@ import { computePaycheck, annualFromHourly, usd, usd2, pct, bracketTax } from ".
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(ROOT, "public");
-const SITE = process.env.SITE_ORIGIN || "https://pay.rerivo.com";
+const SITE_ROOT = process.env.SITE_ORIGIN || "https://pay.rerivo.com";
+const BASE_PATH = (process.env.BASE_PATH || "").replace(/\/$/, "");
+const SITE = SITE_ROOT + BASE_PATH;
+const prefixAssets = (html) =>
+  BASE_PATH
+    ? html.replace(/(href|src)="\/(?!\/)/g, `$1="${BASE_PATH}/`)
+    : html;
+const slugHref = (href) => (BASE_PATH ? BASE_PATH + href : href);
 
 const params = JSON.parse(fs.readFileSync(path.join(ROOT, "data/tax_params.json"), "utf8"));
 const css = fs.readFileSync(path.join(ROOT, "src/style.css"), "utf8");
@@ -107,6 +114,7 @@ function layout({ title, desc, slug, body, breadcrumb, faq, extraHead = "" }) {
 <meta property="og:url" content="${url}">
 <meta property="og:site_name" content="Paycheck Math">
 <meta name="twitter:card" content="summary">
+<meta name="pm-base" content="${BASE_PATH}">
 <link rel="stylesheet" href="/assets/style.css">
 ${crumbLd}
 ${faqLd}
@@ -1433,21 +1441,21 @@ const write = !process.argv.includes("--check");
 const files = new Map();
 for (const p of pages) {
   if (p.slug === "/404.html") {
-    files.set(path.join(OUT, "404.html"), p.html);
+    files.set(path.join(OUT, BASE_PATH, "404.html"), p.html);
     continue;
   }
-  const dir = p.slug === "/" ? OUT : path.join(OUT, p.slug);
+  const dir = path.join(OUT, BASE_PATH, p.slug === "/" ? "" : p.slug);
   const file = path.join(dir, "index.html");
   files.set(file, p.html);
 }
-files.set(path.join(OUT, "sitemap.xml"), sitemap);
-files.set(path.join(OUT, "robots.txt"), robots);
-files.set(path.join(OUT, "llms.txt"), llms);
-files.set(path.join(OUT, "d3b27220b2e09fc3488db3f7724ae3cc.txt"), "d3b27220b2e09fc3488db3f7724ae3cc\n");
-files.set(path.join(OUT, "assets/style.css"), css);
-files.set(path.join(OUT, "assets/calc.js"), calcJs);
-files.set(path.join(OUT, "assets/tax.mjs"), taxJs);
-files.set(path.join(OUT, "assets/tax-params.json"), JSON.stringify(params));
+files.set(path.join(OUT, BASE_PATH, "sitemap.xml"), sitemap);
+files.set(path.join(OUT, BASE_PATH, "robots.txt"), robots);
+files.set(path.join(OUT, BASE_PATH, "llms.txt"), llms);
+files.set(path.join(OUT, BASE_PATH, "d3b27220b2e09fc3488db3f7724ae3cc.txt"), "d3b27220b2e09fc3488db3f7724ae3cc\n");
+files.set(path.join(OUT, BASE_PATH, "assets/style.css"), css);
+files.set(path.join(OUT, BASE_PATH, "assets/calc.js"), calcJs);
+files.set(path.join(OUT, BASE_PATH, "assets/tax.mjs"), taxJs);
+files.set(path.join(OUT, BASE_PATH, "assets/tax-params.json"), JSON.stringify(params));
 
 const keep = new Set(files.keys());
 let pruned = 0;
@@ -1465,6 +1473,10 @@ if (write && fs.existsSync(OUT)) {
     }
   };
   walk(OUT);
+}
+
+for (const [file, content] of files) {
+  if (file.endsWith(".html")) files.set(file, prefixAssets(content));
 }
 
 let mismatches = 0;
@@ -1486,12 +1498,13 @@ const slugs = new Set(pages.map((p) => p.slug));
 const bad = [];
 for (const p of pages) {
   if (p.slug === "/404.html") continue;
-  const html = files.get(path.join(OUT, p.slug === "/" ? "" : p.slug, "index.html"));
+  const html = prefixAssets(p.html);
   const hrefs = [...html.matchAll(/href="(\/[^"#?]*)"/g)];
   for (const m of hrefs) {
-    const h = m[1];
+    let h = m[1];
+    if (BASE_PATH && h.startsWith(BASE_PATH + "/")) h = h.slice(BASE_PATH.length);
     if (h.startsWith("/assets/")) continue;
-    if (!slugs.has(h)) bad.push(`${p.slug} -> ${h}`);
+    if (!slugs.has(h)) bad.push(`${p.slug} -> ${m[1]}`);
   }
 }
 if (bad.length) {

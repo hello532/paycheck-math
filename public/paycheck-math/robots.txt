@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hello532.github.io/paycheck-math/sitemap.xml

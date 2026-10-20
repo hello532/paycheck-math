@@ -1,4 +1,5 @@
-import { computePaycheck } from "/assets/tax.mjs";
+const BASE = document.querySelector('meta[name="pm-base"]')?.content || "";
+const { computePaycheck } = await import(BASE + "/assets/tax.mjs");
 
 const $ = (id) => document.getElementById(id);
 const money = (n) => "$" + Math.round(n).toLocaleString("en-US");
@@ -58,7 +59,7 @@ function applyAndShare() {
 if (grossEl && outEl) {
   goEl.addEventListener("click", applyAndShare);
   [grossEl, stateEl, filingEl].forEach((el) => el.addEventListener("change", render));
-  fetch("/assets/tax-params.json")
+  fetch(BASE + "/assets/tax-params.json")
     .then((r) => r.json())
     .then((j) => {
       params = j;

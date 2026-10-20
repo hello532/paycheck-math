@@ -556,6 +556,7 @@ ${(st.brackets || []).map((b) => `<tr><td>${b.up_to == null ? "and above" : fmt(
 </tbody></table>
 <div class="note">Against Texas (no wage tax) the same $75,000 nets ${fmt(tx.net)}. ${esc(st.name)} comes out ${c.net >= tx.net ? `${fmt(c.net - tx.net)} ahead` : `${fmt(tx.net - c.net)} behind`}.</div>
 
+${st.bracketYear === 2025 ? `<div class="warn"><strong>${esc(st.name)} uses 2025 bracket widths.</strong> ${esc(st.bracketNote || "")} The rate you see is the published 2025 figure applied to 2026 wages.</div>` : ""}
 ${stateFactsBlock(code, sample)}
 ${stateSpecificBlock(code, sample)}
 ${stateIncomeBlock(code, sample)}
@@ -688,6 +689,7 @@ ${params.federal.brackets.single.map((b, i) => `<tr><td>${b.up_to == null ? "and
 <h2>FICA</h2>
 <p>Social Security at ${pct(params.fica.ss_rate)} on wages up to ${fmt(params.fica.ss_wage_base)}; Medicare at ${pct(params.fica.medicare_rate)} on all wages plus ${pct(params.fica.additional_medicare_rate)} above ${fmt(params.fica.additional_threshold.single)} for single filers and ${fmt(params.fica.additional_threshold.married)} for married filing jointly. Source: ${src.fica ? `<a href="${src.fica}" rel="nofollow">${src.fica}</a>` : "Social Security Administration"}.</p>
 <h2>State income tax</h2>
+<p>${(() => { const stale = Object.entries(params.states).filter(([, v]) => v.bracketYear === 2025); return stale.length ? `Bracket widths are 2026 except in ${stale.map(([, v]) => v.name).join(", ")}, where the 2026 inflation-adjusted figures had not been published when the source was compiled and the 2025 figures are used instead.` : ""; })()}</p>
 <p>States with no wage tax are computed at zero. Flat-rate states apply their rate after any state standard deduction. Bracket states use the published table. States marked as estimates on their calculator page use the top marginal rate because a fully verified bracket table was not available — those pages carry a visible warning.</p>
 <h2>What the estimates exclude</h2>
 <ul>

@@ -104,4 +104,20 @@ t("progressive states have a lower effective rate than the top bracket", () => {
   assert.ok(c.effectiveRate > 0.05);
 });
 
+t("states with 2025 bracket widths are flagged, not silently labelled 2026", () => {
+  const stale = Object.entries(tax.states).filter(([, v]) => v.bracketYear === 2025).map(([c]) => c);
+  assert.ok(stale.length > 0, "expected some states flagged");
+  for (const c of stale) {
+    assert.ok(tax.states[c].bracketNote && tax.states[c].bracketNote.length > 20, c + " needs a note");
+  }
+  assert.ok(stale.includes("CA"), "California is a 2025-width state");
+});
+
+t("no-wage-tax states carry no bracket-year note", () => {
+  for (const [c, v] of Object.entries(tax.states)) {
+    if (v.type !== "none") continue;
+    assert.equal(v.bracketNote, undefined, c + " should not have a bracket note");
+  }
+});
+
 console.log(`\n${passed} tests passed`);

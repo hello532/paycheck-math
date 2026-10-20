@@ -1,0 +1,219 @@
+{
+  "Alabama": [
+    "a",
+    "b",
+    "c",
+    "uu"
+  ],
+  "Arizona": [
+    "e",
+    "f",
+    "u",
+    "vv"
+  ],
+  "Arkansas": [
+    "d",
+    "g",
+    "h",
+    "j",
+    "kk"
+  ],
+  "California": [
+    "a",
+    "h",
+    "j",
+    "k",
+    "l",
+    "m",
+    "n",
+    "nn"
+  ],
+  "Colorado": [
+    "a",
+    "o"
+  ],
+  "Connecticut": [
+    "i",
+    "p",
+    "q",
+    "r"
+  ],
+  "Delaware": [
+    "a",
+    "h",
+    "m",
+    "s"
+  ],
+  "Hawaii": [
+    "m",
+    "t"
+  ],
+  "Idaho": [
+    "j",
+    "m",
+    "o",
+    "u"
+  ],
+  "Illinois": [
+    "d",
+    "m",
+    "v"
+  ],
+  "Indiana": [
+    "a",
+    "m",
+    "w"
+  ],
+  "Iowa": [
+    "a",
+    "h",
+    "o"
+  ],
+  "Kansas": [
+    "a",
+    "m"
+  ],
+  "Kentucky": [
+    "a",
+    "d",
+    "z"
+  ],
+  "Louisiana": [
+    "d"
+  ],
+  "Maine": [
+    "u",
+    "y",
+    "bb",
+    "ll",
+    "vv",
+    "ww"
+  ],
+  "Maryland": [
+    "a",
+    "m",
+    "x",
+    "vv",
+    "aa"
+  ],
+  "Massachusetts": [
+    "j",
+    "rr"
+  ],
+  "Michigan": [
+    "a",
+    "d"
+  ],
+  "Minnesota": [
+    "d",
+    "bb",
+    "cc",
+    "oo",
+    "vv"
+  ],
+  "Missouri": [
+    "a",
+    "b",
+    "m",
+    "u",
+    "bb"
+  ],
+  "Montana": [
+    "o",
+    "u",
+    "bb"
+  ],
+  "Nebraska": [
+    "d",
+    "h",
+    "m",
+    "bb"
+  ],
+  "New Jersey": [
+    "a"
+  ],
+  "New Mexico": [
+    "m",
+    "o",
+    "u",
+    "jj"
+  ],
+  "New York": [
+    "a",
+    "i"
+  ],
+  "North Dakota": [
+    "j",
+    "o",
+    "u"
+  ],
+  "Ohio": [
+    "a",
+    "bb",
+    "dd",
+    "pp"
+  ],
+  "Oklahoma": [
+    "m"
+  ],
+  "Oregon": [
+    "a",
+    "b",
+    "d",
+    "h",
+    "m",
+    "bb",
+    "ee",
+    "nn"
+  ],
+  "Pennsylvania": [
+    "a"
+  ],
+  "Rhode Island": [
+    "d",
+    "bb",
+    "ff"
+  ],
+  "South Carolina": [
+    "d",
+    "o",
+    "u",
+    "bb",
+    "qq",
+    "vv",
+    "ww"
+  ],
+  "Utah": [
+    "d",
+    "h",
+    "gg",
+    "ll"
+  ],
+  "Vermont": [
+    "j",
+    "n",
+    "hh",
+    "mm"
+  ],
+  "Virginia": [
+    "m"
+  ],
+  "Washington": [
+    "n",
+    "ss",
+    "tt"
+  ],
+  "West Virginia": [
+    "a",
+    "m"
+  ],
+  "Wisconsin": [
+    "d",
+    "m",
+    "bb",
+    "ii"
+  ],
+  "Washington DC": [
+    "u"
+  ]
+}

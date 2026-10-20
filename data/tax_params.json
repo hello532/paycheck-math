@@ -8,7 +8,8 @@
       "federal": "https://www.irs.gov/pub/irs-drop/rp-25-32.pdf",
       "fica": "https://www.ssa.gov/oact/cola/cbb.html",
       "states": "https://taxfoundation.org/data/all/state/state-income-tax-rates-2026/"
-    }
+    },
+    "bracket_year_policy": "Federal figures are tax year 2026 (IRS Rev. Proc. 2025-32). State brackets are 2026 except for states flagged bracketYear 2025, whose inflation-adjusted 2026 widths were not published."
   },
   "federal": {
     "year": 2026,
@@ -153,7 +154,8 @@
         }
       ],
       "standard_deduction": 3000.0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2026
     },
     "AR": {
       "name": "Arkansas",
@@ -169,14 +171,17 @@
         }
       ],
       "standard_deduction": 2470.0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2025,
+      "bracketNote": "Brackets are the 2025 inflation-adjusted figures: 2026 bracket widths were not published when the source table was compiled."
     },
     "AZ": {
       "name": "Arizona",
       "type": "flat",
       "standard_deduction": 8350.0,
       "confidence": "high",
-      "rate": 0.025
+      "rate": 0.025,
+      "bracketYear": 2026
     },
     "CA": {
       "name": "California",
@@ -224,14 +229,17 @@
         }
       ],
       "standard_deduction": 5540.0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2025,
+      "bracketNote": "Brackets are the 2025 inflation-adjusted figures: 2026 bracket widths were not published when the source table was compiled. The 2026 inflation adjustment had not been published, so the figure reflects the 2025 amount."
     },
     "CO": {
       "name": "Colorado",
       "type": "flat",
       "standard_deduction": 16100.0,
       "confidence": "high",
-      "rate": 0.044
+      "rate": 0.044,
+      "bracketYear": 2026
     },
     "CT": {
       "name": "Connecticut",
@@ -267,7 +275,8 @@
         }
       ],
       "standard_deduction": 0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2026
     },
     "DC": {
       "name": "Washington DC",
@@ -303,7 +312,8 @@
         }
       ],
       "standard_deduction": 16100.0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2026
     },
     "DE": {
       "name": "Delaware",
@@ -335,7 +345,8 @@
         }
       ],
       "standard_deduction": 3250.0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2026
     },
     "FL": {
       "name": "Florida",
@@ -403,35 +414,41 @@
         }
       ],
       "standard_deduction": 4400.0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2026
     },
     "IA": {
       "name": "Iowa",
       "type": "flat",
       "standard_deduction": 16100.0,
       "confidence": "high",
-      "rate": 0.038
+      "rate": 0.038,
+      "bracketYear": 2026
     },
     "ID": {
       "name": "Idaho",
       "type": "flat",
       "standard_deduction": 16100.0,
       "confidence": "high",
-      "rate": 0.053
+      "rate": 0.053,
+      "bracketYear": 2025,
+      "bracketNote": "Brackets are the 2025 inflation-adjusted figures: 2026 bracket widths were not published when the source table was compiled."
     },
     "IL": {
       "name": "Illinois",
       "type": "flat",
       "standard_deduction": 0,
       "confidence": "high",
-      "rate": 0.0495
+      "rate": 0.0495,
+      "bracketYear": 2026
     },
     "IN": {
       "name": "Indiana",
       "type": "flat",
       "standard_deduction": 0,
       "confidence": "high",
-      "rate": 0.0295
+      "rate": 0.0295,
+      "bracketYear": 2026
     },
     "KS": {
       "name": "Kansas",
@@ -447,21 +464,24 @@
         }
       ],
       "standard_deduction": 3605.0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2026
     },
     "KY": {
       "name": "Kentucky",
       "type": "flat",
       "standard_deduction": 3360.0,
       "confidence": "high",
-      "rate": 0.035
+      "rate": 0.035,
+      "bracketYear": 2026
     },
     "LA": {
       "name": "Louisiana",
       "type": "flat",
       "standard_deduction": 12875.0,
       "confidence": "high",
-      "rate": 0.03
+      "rate": 0.03,
+      "bracketYear": 2026
     },
     "MA": {
       "name": "Massachusetts",
@@ -477,7 +497,9 @@
         }
       ],
       "standard_deduction": 0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2025,
+      "bracketNote": "Brackets are the 2025 inflation-adjusted figures: 2026 bracket widths were not published when the source table was compiled."
     },
     "MD": {
       "name": "Maryland",
@@ -525,7 +547,8 @@
         }
       ],
       "standard_deduction": 3350.0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2026
     },
     "ME": {
       "name": "Maine",
@@ -545,14 +568,16 @@
         }
       ],
       "standard_deduction": 8350.0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2026
     },
     "MI": {
       "name": "Michigan",
       "type": "flat",
       "standard_deduction": 0,
       "confidence": "high",
-      "rate": 0.0425
+      "rate": 0.0425,
+      "bracketYear": 2026
     },
     "MN": {
       "name": "Minnesota",
@@ -576,7 +601,8 @@
         }
       ],
       "standard_deduction": 15300.0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2026
     },
     "MO": {
       "name": "Missouri",
@@ -612,7 +638,8 @@
         }
       ],
       "standard_deduction": 16100.0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2026
     },
     "MS": {
       "name": "Mississippi",
@@ -635,7 +662,8 @@
         }
       ],
       "standard_deduction": 16100.0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2026
     },
     "NC": {
       "name": "North Carolina",
@@ -658,7 +686,9 @@
         }
       ],
       "standard_deduction": 16100.0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2025,
+      "bracketNote": "Brackets are the 2025 inflation-adjusted figures: 2026 bracket widths were not published when the source table was compiled."
     },
     "NE": {
       "name": "Nebraska",
@@ -678,7 +708,8 @@
         }
       ],
       "standard_deduction": 8850.0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2026
     },
     "NH": {
       "name": "New Hampshire",
@@ -719,7 +750,8 @@
         }
       ],
       "standard_deduction": 0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2026
     },
     "NM": {
       "name": "New Mexico",
@@ -751,7 +783,8 @@
         }
       ],
       "standard_deduction": 16100.0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2026
     },
     "NV": {
       "name": "Nevada",
@@ -800,14 +833,16 @@
         }
       ],
       "standard_deduction": 8000.0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2026
     },
     "OH": {
       "name": "Ohio",
       "type": "flat",
       "standard_deduction": 0,
       "confidence": "high",
-      "rate": 0.0275
+      "rate": 0.0275,
+      "bracketYear": 2026
     },
     "OK": {
       "name": "Oklahoma",
@@ -827,7 +862,8 @@
         }
       ],
       "standard_deduction": 6350.0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2026
     },
     "OR": {
       "name": "Oregon",
@@ -851,14 +887,16 @@
         }
       ],
       "standard_deduction": 2910.0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2026
     },
     "PA": {
       "name": "Pennsylvania",
       "type": "flat",
       "standard_deduction": 0,
       "confidence": "high",
-      "rate": 0.0307
+      "rate": 0.0307,
+      "bracketYear": 2026
     },
     "RI": {
       "name": "Rhode Island",
@@ -878,7 +916,8 @@
         }
       ],
       "standard_deduction": 11200.0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2026
     },
     "SC": {
       "name": "South Carolina",
@@ -898,7 +937,8 @@
         }
       ],
       "standard_deduction": 8350.0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2026
     },
     "SD": {
       "name": "South Dakota",
@@ -920,7 +960,8 @@
       "type": "flat",
       "standard_deduction": 0,
       "confidence": "high",
-      "rate": 0.045
+      "rate": 0.045,
+      "bracketYear": 2026
     },
     "VA": {
       "name": "Virginia",
@@ -944,7 +985,8 @@
         }
       ],
       "standard_deduction": 8750.0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2026
     },
     "VT": {
       "name": "Vermont",
@@ -968,13 +1010,16 @@
         }
       ],
       "standard_deduction": 7650.0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2025,
+      "bracketNote": "Brackets are the 2025 inflation-adjusted figures: 2026 bracket widths were not published when the source table was compiled. The 2026 inflation adjustment had not been published, so the figure reflects the 2025 amount."
     },
     "WA": {
       "name": "Washington",
       "type": "none",
       "confidence": "high",
-      "note": "Applies to capital gains income only, not wages."
+      "note": "Applies to capital gains income only, not wages.",
+      "bracketYear": 2026
     },
     "WI": {
       "name": "Wisconsin",
@@ -998,7 +1043,8 @@
         }
       ],
       "standard_deduction": 13960.0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2026
     },
     "WV": {
       "name": "West Virginia",
@@ -1026,7 +1072,8 @@
         }
       ],
       "standard_deduction": 0,
-      "confidence": "high"
+      "confidence": "high",
+      "bracketYear": 2026
     },
     "WY": {
       "name": "Wyoming",

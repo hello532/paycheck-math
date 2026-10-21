@@ -1,0 +1,35 @@
+# Paycheck Math — search and AI crawler policy
+# Search engines: allow everything. AI assistants: allow, because being quoted with a source
+# is how this site earns traffic. Training-only crawlers are allowed too; there is no
+# proprietary content here, only computed public data.
+
+User-agent: *
+Allow: /
+
+# AI search and citation crawlers (explicitly welcome)
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Claude-SearchBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: Applebot-Extended
+Allow: /
+User-agent: CCBot
+Allow: /
+
+# Sitemap
+Sitemap: https://hello532.github.io/paycheck-math/sitemap-index.xml
+
+# Machine-readable entry points
+# llms.txt:      https://hello532.github.io/paycheck-math/llms.txt
+# openapi.json:  https://hello532.github.io/paycheck-math/openapi.json
+# dataset:       https://hello532.github.io/paycheck-math/data/paycheck-tax-by-state.json

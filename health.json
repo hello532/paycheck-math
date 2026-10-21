@@ -1,6 +1,6 @@
 {
   "base": "https://hello532.github.io/paycheck-math",
-  "date": "2026-10-20",
+  "date": "2026-10-21",
   "checks": [
     {
       "name": "sitemap urls",
@@ -43,7 +43,12 @@
       "detail": ""
     },
     {
-      "name": "robots points to sitemap",
+      "name": "robots points to a sitemap",
+      "ok": true,
+      "detail": "Sitemap: https://hello532.github.io/paycheck-math/sitemap-index.xml"
+    },
+    {
+      "name": "sitemap index resolves",
       "ok": true,
       "detail": ""
     },

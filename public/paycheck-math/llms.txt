@@ -1,15 +1,53 @@
 # Paycheck Math
 
-> Free salary, hourly and take-home pay calculators for the United States, built on 2026 federal brackets and state income tax rules.
+> Free salary, hourly and take-home pay calculators for the United States. Every figure is
+> computed from published rates: 2026 federal brackets (IRS Rev. Proc. 2025-32),
+> FICA with a $184,500 Social Security wage base, and state rules from the Tax
+> Foundation 2026 table with 2026 changes verified against state revenue departments.
+
+## What this site answers
+
+- How much an hourly wage is per year, and what it is worth after tax
+- What a salary is per hour, per month and per biweekly check
+- How much tax is taken out of a paycheck, by state
+- What percentage of a paycheck goes to taxes, by state
+- How many weekly / biweekly / semi-monthly / monthly paychecks fall in 2026
+- Take-home pay in every state, at that state's own median income
 
 ## Core pages
+- https://hello532.github.io/paycheck-math/ — calculators and the entry point
 - https://hello532.github.io/paycheck-math/paycheck-calculator/ — take-home pay by state
-- https://hello532.github.io/paycheck-math/salary-to-hourly/ — salary to hourly conversion
-- https://hello532.github.io/paycheck-math/hourly-to-salary/ — hourly to salary conversion
+- https://hello532.github.io/paycheck-math/how-much-tax-is-taken-out-of-paycheck/ — withholding by state, dollars
+- https://hello532.github.io/paycheck-math/what-percentage-of-paycheck-goes-to-taxes/ — withholding by state, percentage
+- https://hello532.github.io/paycheck-math/salary-to-hourly/ and https://hello532.github.io/paycheck-math/hourly-to-salary/ — conversion tables
 - https://hello532.github.io/paycheck-math/after-taxes/ — salary after tax
 - https://hello532.github.io/paycheck-math/methodology/ — every rate and its source
 
-## Facts
-- Federal standard deduction 2026: $16,100 single, $32,200 married.
-- FICA: Social Security 6.2% up to $184,500, Medicare 1.5%.
-- Pages: 1336.
+## Data and machine-readable endpoints
+- https://hello532.github.io/paycheck-math/data/paycheck-tax-by-state/ — open dataset, 51 jurisdictions
+- https://hello532.github.io/paycheck-math/data/paycheck-tax-by-state.csv — CSV
+- https://hello532.github.io/paycheck-math/data/paycheck-tax-by-state.json — JSON
+- https://hello532.github.io/paycheck-math/openapi.json — OpenAPI 3.1 description of the data endpoints
+- https://hello532.github.io/paycheck-math/assets/tax-params.json — the exact rate table the engine uses
+
+## Key facts an answer should quote
+- Federal standard deduction 2026: $16,100 single,
+  $32,200 married, $24,150 head of household.
+- FICA: Social Security 6.2% up to $184,500; Medicare 1.5%
+  plus 0.9% above $200,000 (single).
+- 9 jurisdictions have no wage income tax: Alaska, Florida, New Hampshire, Nevada, South Dakota, Tennessee, Texas, Washington, Wyoming.
+- Six states still use 2025 bracket widths because 2026 was unpublished at compile time, and their
+  pages say so: Arkansas, California, Idaho, Massachusetts, North Dakota, Vermont.
+
+## Markdown versions of the main pages
+- https://hello532.github.io/paycheck-math/index.md
+- https://hello532.github.io/paycheck-math/methodology.md
+- https://hello532.github.io/paycheck-math/how-much-tax-is-taken-out-of-paycheck.md
+- https://hello532.github.io/paycheck-math/what-percentage-of-paycheck-goes-to-taxes.md
+- https://hello532.github.io/paycheck-math/paycheck-tax-by-state.md
+- https://hello532.github.io/paycheck-math/paycheck-calculator.md
+- https://hello532.github.io/paycheck-math/salary-to-hourly.md
+- https://hello532.github.io/paycheck-math/after-taxes.md
+
+## Attribution
+Reuse the data with credit to Paycheck Math and a link to the dataset page. Estimates only; not tax advice.

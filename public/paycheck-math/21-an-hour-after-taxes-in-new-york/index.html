@@ -12,8 +12,101 @@
 <meta property="og:url" content="https://hello532.github.io/paycheck-math/21-an-hour-after-taxes-in-new-york/">
 <meta property="og:site_name" content="Paycheck Math">
 <meta name="twitter:card" content="summary">
+<link rel="preload" href="/paycheck-math/assets/tax-params.json" as="fetch" crossorigin>
 <meta name="pm-base" content="/paycheck-math">
-<link rel="stylesheet" href="/paycheck-math/assets/style.css">
+<style>:root{
+  --bg:#0d1117; --bg2:#111823; --card:#161d29; --card2:#1c2431; --line:#26303f;
+  --text:#e9eef6; --soft:#b3bfd0; --dim:#8492a6;
+  --accent:#39d98a; --accent2:#1fb574; --accentdim:rgba(57,217,138,.12);
+  --warn:#f0b429; --bad:#ef6461; --link:#6cb6ff;
+  --radius:14px; --shadow:0 10px 30px -14px rgba(0,0,0,.7);
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 var(--font);
+  -webkit-font-smoothing:antialiased}
+a{color:var(--link);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+.skip{position:absolute;left:-9999px;top:0;background:var(--accent);color:#062015;padding:10px 16px;border-radius:0 0 8px 0;font-weight:700;z-index:100}
+.skip:focus{left:0}
+header.site{border-bottom:1px solid var(--line);background:rgba(13,17,23,.9);
+  position:sticky;top:0;z-index:20;backdrop-filter:blur(10px)}
+header.site .wrap{display:flex;align-items:center;gap:22px;height:60px}
+.brand{font-weight:800;font-size:17px;color:var(--text);letter-spacing:-.02em}
+.brand span{color:var(--accent)}
+nav.top{display:flex;gap:18px;font-size:14px;flex-wrap:wrap}
+nav.top a{color:var(--soft)}
+main{padding:34px 0 60px}
+h1{font-size:clamp(28px,4.2vw,42px);line-height:1.16;letter-spacing:-.025em;margin:0 0 12px}
+h2{font-size:24px;letter-spacing:-.015em;margin:40px 0 12px}
+h3{font-size:18px;margin:24px 0 8px}
+p,li{color:var(--soft)}
+.lede{font-size:18px;color:var(--soft);max-width:70ch}
+.crumb{font-size:13px;color:var(--dim);margin-bottom:14px}
+.crumb a{color:var(--dim)}
+
+.calc{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);
+  border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;margin:24px 0}
+.calc h2{margin:0 0 4px;font-size:16px;color:var(--dim);font-weight:600;
+  text-transform:uppercase;letter-spacing:.09em}
+.calc .row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+.calc label{display:block;font-size:13px;color:var(--dim);margin-bottom:5px;font-weight:600}
+.calc input,.calc select{width:100%;padding:11px 12px;border-radius:9px;border:1px solid var(--line);
+  background:#0b1017;color:var(--text);font:15px var(--mono)}
+.calc input:focus,.calc select:focus{outline:2px solid var(--accentdim);border-color:var(--accent2)}
+.btn{background:var(--accent);color:#062015;border:0;border-radius:9px;padding:11px 20px;
+  font:700 15px var(--font);cursor:pointer}
+.btn:hover{background:var(--accent2);color:#fff}
+
+.result{margin-top:18px;border-top:1px solid var(--line);padding-top:16px}
+.bignum{font:800 clamp(30px,6vw,44px)/1.1 var(--font);color:var(--accent);letter-spacing:-.03em}
+.bignum small{display:block;font-size:13px;font-weight:600;color:var(--dim);
+  letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+.card .k{font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.card .v{font:700 20px var(--font);margin-top:3px}
+
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:15px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+th{color:var(--dim);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+td{color:var(--soft)}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-family:var(--mono)}
+
+.note{background:var(--accentdim);border-left:3px solid var(--accent);border-radius:0 9px 9px 0;
+  padding:12px 16px;margin:18px 0;font-size:14px;color:var(--soft)}
+.warn{background:rgba(240,180,41,.1);border-left:3px solid var(--warn);border-radius:0 9px 9px 0;
+  padding:12px 16px;margin:18px 0;font-size:14px;color:var(--soft)}
+.ad{border:1px dashed var(--line);border-radius:10px;padding:10px;margin:26px 0;text-align:center;
+  color:var(--dim);font-size:12px;min-height:96px;display:flex;align-items:center;justify-content:center}
+
+.links{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px;
+  list-style:none;padding:0;margin:14px 0}
+.links li a{display:block;padding:9px 12px;border:1px solid var(--line);border-radius:9px;
+  background:var(--card);font-size:14px;color:var(--soft)}
+.links li a:hover{border-color:var(--accent2);color:var(--text);text-decoration:none}
+
+details{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:0;margin:8px 0}
+details summary{padding:13px 16px;cursor:pointer;font-weight:600;color:var(--text);font-size:15px}
+details p{padding:0 16px 14px;margin:0;font-size:15px}
+
+footer.site{border-top:1px solid var(--line);padding:28px 0;font-size:13px;color:var(--dim)}
+footer.site .wrap{display:flex;flex-wrap:wrap;gap:18px;justify-content:space-between}
+footer.site a{color:var(--dim)}
+.byline{font-size:13px;color:var(--dim);margin:6px 0 0}
+.byline a{color:var(--dim);text-decoration:underline}
+
+@media(max-width:640px){
+  .calc .row{grid-template-columns:1fr}
+  .grid3{grid-template-columns:1fr}
+  header.site .wrap{height:auto;padding:10px 20px;flex-direction:column;align-items:flex-start;gap:6px}
+  nav.top{gap:12px;font-size:13px}
+}
+</style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://hello532.github.io/paycheck-math/"},{"@type":"ListItem","position":2,"name":"$21 an hour after tax","item":"https://hello532.github.io/paycheck-math/21-an-hour-after-taxes/"},{"@type":"ListItem","position":3,"name":"New York","item":"https://hello532.github.io/paycheck-math/21-an-hour-after-taxes-in-new-york/"}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much is $21 an hour after taxes in New York?","acceptedAnswer":{"@type":"Answer","text":"About $35,515 a year, or $17.07 an hour, for a single filer with no other pre-tax deductions."}}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://hello532.github.io/paycheck-math/#website","url":"https://hello532.github.io/paycheck-math/","name":"Paycheck Math","description":"Salary, hourly and take-home pay calculators for the United States."},{"@type":"Organization","@id":"https://hello532.github.io/paycheck-math/#organization","name":"Paycheck Math","url":"https://hello532.github.io/paycheck-math/"},{"@type":"WebPage","@id":"https://hello532.github.io/paycheck-math/21-an-hour-after-taxes-in-new-york/#webpage","url":"https://hello532.github.io/paycheck-math/21-an-hour-after-taxes-in-new-york/","name":"$21 an Hour After Taxes in New York","description":"In New York, $21 an hour is $35,515 a year after tax — $17.07 an hour. New York takes $1,762.","isPartOf":{"@id":"https://hello532.github.io/paycheck-math/#website"},"about":{"@id":"https://hello532.github.io/paycheck-math/#organization"},"inLanguage":"en-US"}]}</script>
@@ -22,6 +115,7 @@
 
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <header class="site"><div class="wrap">
   <a class="brand" href="/paycheck-math/">Paycheck <span>Math</span></a>
   <nav class="top">
@@ -32,7 +126,7 @@
     <a href="/paycheck-math/hourly-after-taxes/">After-tax hourly</a>
   </nav>
 </div></header>
-<main><div class="wrap">
+<main id="main" tabindex="-1"><div class="wrap">
 
 <p class="crumb"><a href="/paycheck-math/">Home</a> › <a href="/paycheck-math/21-an-hour-after-taxes/">$21 an hour after tax</a> › New York</p>
 <h1>$21 an Hour After Taxes in New York</h1>
@@ -196,6 +290,7 @@
   </div>
   <div class="result" id="out" aria-live="polite"></div>
 </section>
+
 
 </div></main>
 <footer class="site"><div class="wrap">

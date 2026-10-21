@@ -1,0 +1,92 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Paycheck Math take-home pay API",
+    "version": "2026",
+    "description": "Compute US take-home pay from gross salary, state and filing status. Every rate is the one published on the site; see /methodology/.",
+    "license": {
+      "name": "CC BY 4.0",
+      "url": "https://creativecommons.org/licenses/by/4.0/"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://hello532.github.io/paycheck-math"
+    }
+  ],
+  "paths": {
+    "/assets/tax-params.json": {
+      "get": {
+        "operationId": "getTaxParams",
+        "summary": "Every federal bracket, FICA rate and state rule the engine uses",
+        "responses": {
+          "200": {
+            "description": "Tax parameter table",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/data/paycheck-tax-by-state.json": {
+      "get": {
+        "operationId": "getPaycheckTaxByState",
+        "summary": "Withholding and take-home for all 51 jurisdictions at each one's median income",
+        "responses": {
+          "200": {
+            "description": "51 rows",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "taxYear": {
+                      "type": "integer"
+                    },
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "state": {
+                            "type": "string"
+                          },
+                          "code": {
+                            "type": "string"
+                          },
+                          "medianIncome": {
+                            "type": "integer"
+                          },
+                          "withheld": {
+                            "type": "integer"
+                          },
+                          "keep": {
+                            "type": "integer"
+                          },
+                          "withheldShare": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "x-calculation": {
+    "formula": "net = gross - federalTax - stateTax - socialSecurity - medicare",
+    "federalTax": "progressive brackets from /assets/tax-params.json applied to (gross - standard deduction)",
+    "socialSecurity": "0.062 * min(gross, wageBase)",
+    "medicare": "0.0145 * gross (+0.009 above the additional threshold)"
+  }
+}

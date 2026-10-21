@@ -28,7 +28,14 @@ check("canonical on live host", canonical === `${BASE}/`, String(canonical));
 check("title under 60", (home.match(/<title>([^<]*)/)?.[1] ?? "").length <= 60, String((home.match(/<title>([^<]*)/)?.[1] ?? "").length));
 check("meta description under 160", (home.match(/name="description" content="([^"]*)/)?.[1] ?? "").length <= 160, "");
 check("json-ld present", home.includes("application/ld+json"), "");
-check("robots points to sitemap", (await (await fetch(`${BASE}/robots.txt`)).text()).includes(`${BASE}/sitemap.xml`), "");
+const robotsTxt = await (await fetch(`${BASE}/robots.txt`)).text();
+check("robots points to a sitemap", /Sitemap: \S+sitemap(-index)?\.xml/.test(robotsTxt), (robotsTxt.match(/Sitemap: .*/) || [""])[0]);
+check("sitemap index resolves", await (async () => {
+  const m = robotsTxt.match(/Sitemap: (\S+)/);
+  if (!m) return false;
+  const r = await fetch(m[1]);
+  return r.status === 200 && (await r.text()).includes("<sitemapindex");
+})(), "");
 
 const statePageHtml = await (await fetch(`${BASE}/paycheck-calculator/tx/`)).text();
 check("state page has no NaN or undefined", !/NaN|undefined|\[object Object\]/.test(statePageHtml), "");

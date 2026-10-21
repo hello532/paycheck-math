@@ -38,6 +38,21 @@ function esc(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
+const CLUSTER_NAV = `<nav class="clusters" aria-label="All calculators">
+<p><strong>Paycheck Math</strong> — every calculator on the site:</p>
+<p>
+<a href="/paycheck-calculator/">Take-home by state</a> ·
+<a href="/how-much-tax-is-taken-out-of-paycheck/">Tax taken out of a paycheck</a> ·
+<a href="/what-percentage-of-paycheck-goes-to-taxes/">Percent of paycheck to taxes</a> ·
+<a href="/salary-to-hourly/">Salary to hourly</a> ·
+<a href="/hourly-to-salary/">Hourly to salary</a> ·
+<a href="/after-taxes/">Salary after tax</a> ·
+<a href="/hourly-after-taxes/">After-tax hourly</a> ·
+<a href="/data/paycheck-tax-by-state/">Open dataset</a> ·
+<a href="/methodology/">Methodology</a>
+</p>
+</nav>`;
+
 function jsonld(obj) {
   return `<script type="application/ld+json">${JSON.stringify(obj)}</script>`;
 }
@@ -114,8 +129,9 @@ function layout({ title, desc, slug, body, breadcrumb, faq, extraHead = "" }) {
 <meta property="og:url" content="${url}">
 <meta property="og:site_name" content="Paycheck Math">
 <meta name="twitter:card" content="summary">
+<link rel="preload" href="/assets/tax-params.json" as="fetch" crossorigin>
 <meta name="pm-base" content="${BASE_PATH}">
-<link rel="stylesheet" href="/assets/style.css">
+<style>@@CRITICAL_CSS@@</style>
 ${crumbLd}
 ${faqLd}
 ${siteLd(slug, title, desc)}
@@ -124,6 +140,7 @@ ${ADSENSE_HEAD}
 ${GA_HEAD}
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <header class="site"><div class="wrap">
   <a class="brand" href="/">Paycheck <span>Math</span></a>
   <nav class="top">
@@ -134,8 +151,9 @@ ${GA_HEAD}
     <a href="/hourly-after-taxes/">After-tax hourly</a>
   </nav>
 </div></header>
-<main><div class="wrap">
+<main id="main" tabindex="-1"><div class="wrap">
 ${body}
+CLUSTER_NAV_PLACEHOLDER_MARKER
 </div></main>
 <footer class="site"><div class="wrap">
   <div>Paycheck Math — ${params.meta.tax_year} federal rates. Estimates only, not tax advice.</div>
@@ -461,8 +479,31 @@ ${calculatorBlock({ defaultGross: amount, state: "CA", heading: "Recalculate wit
 
 ${marginalStepBlock(amount, "CA")}
 
+${GOOD_SALARIES.includes(amount) ? `<p><a href="/is-${amount}-a-year-a-good-salary/">Is ${fmt(amount)} a year a good salary?</a></p>` : ""}
+
+<h2>How this ${fmt(amount)} is taxed band by band</h2>
+<p>Federal brackets apply only to the income inside each band, which is why the effective rate stays below the marginal one. At ${fmt(amount)} after the ${fmt(params.federal.standard_deduction.single)} standard deduction, the federal tax breaks down as:</p>
+<table>
+<thead><tr><th>Band</th><th class="num">Rate</th><th class="num">Income in band</th><th class="num">Tax</th></tr></thead>
+<tbody>
+${(() => {
+  let floor = 0;
+  return params.federal.brackets.single.map((b) => {
+    const top = b.up_to === null ? Infinity : b.up_to;
+    const taxable = Math.max(0, amount - params.federal.standard_deduction.single);
+    const slice = Math.max(0, Math.min(taxable, top) - floor);
+    const out = slice > 0 ? `<tr><td>${fmt(floor)} – ${b.up_to === null ? "above" : fmt(b.up_to)}</td><td class="num">${pct(b.rate)}</td><td class="num">${fmt(slice)}</td><td class="num">${fmt(slice * b.rate)}</td></tr>` : "";
+    floor = top;
+    return out;
+  }).join("");
+})()}
+</tbody></table>
+<p>Total federal income tax at this gross: <strong>${fmt(base.federalTax)}</strong>, or ${pct(base.federalTax / amount)} of gross. Add FICA of ${fmt(base.fica)} and ${base.stateTax === 0 ? "no state income tax" : fmt(base.stateTax) + " of state tax"}.</p>
+
 <h2>Nearby salaries after tax</h2>
-${ladderLinks(SALARIES, amount, (s) => `/${s}-a-year-after-taxes/`, (s) => `$${s.toLocaleString("en-US")} a year`)}
+<p>At ${fmt(amount)} the next $1,000 of gross adds ${fmt(computePaycheck(params, amount + 1000, "CA", "single").net - base.net)} to take-home in California, and ${fmt(computePaycheck(params, amount + 1000, "TX", "single").net - computePaycheck(params, amount, "TX", "single").net)} in Texas.</p>
+<p>${amount >= params.fica.ss_wage_base ? `You are ${fmt(amount - params.fica.ss_wage_base)} above the Social Security wage base, so that 6.2% has already stopped for the year and only Medicare and income tax apply to further pay.` : `You are ${fmt(params.fica.ss_wage_base - amount)} below the ${fmt(params.fica.ss_wage_base)} Social Security wage base, so the full 6.2% applies to every paycheck.`} Against the highest-taxing state measured on this site, the same ${fmt(amount)} leaves ${fmt(computePaycheck(params, amount, "OR", "single").net)} in Oregon — ${fmt(computePaycheck(params, amount, "OR", "single").net - computePaycheck(params, amount, "TX", "single").net)} less than Texas.</p>
+${ladderLinks(SALARIES, amount, (s) => `/${s}-a-year-after-taxes/`, (s) => `${s.toLocaleString("en-US")} a year`)}
 <p><a href="/after-taxes/">See the full after-tax table →</a></p>
 `;
 
@@ -563,6 +604,11 @@ ${stateSpecificBlock(code, sample)}
 ${stateIncomeBlock(code, sample)}
 ${noTaxComparisonBlock(code, sample)}
 ${uniqueFactsBlock({ gross: sample, state: code })}
+${SALARY_STATES.includes(code) ? `<h2>Salaries in ${esc(st.name)}</h2>
+<ul class="links">
+${SALARY_STATE_VALUES.map((v) => `<li><a href="/${v}-a-year-after-taxes-in-${stateSlug(code)}/">${fmt(v)}</a></li>`).join("\n")}
+</ul>` : ""}
+
 <h2>Other states</h2>
 <ul class="links">
 ${STATE_CODES.map((s) => `<li><a href="/paycheck-calculator/${s.toLowerCase()}/">${esc(params.states[s].name)}</a></li>`).join("\n")}
@@ -618,6 +664,10 @@ ${calculatorBlock({ defaultGross: sample, state: "CA", heading: "Start with your
   <li><a href="/25-an-hour-is-how-much-a-year/">$25 an hour is how much a year?</a></li>
   <li><a href="/20-an-hour-is-how-much-a-year/">$20 an hour is how much a year?</a></li>
   <li><a href="/75000-a-year-after-taxes/">$75,000 after taxes</a></li>
+  <li><a href="/how-much-tax-is-taken-out-of-paycheck/">How much tax is taken out of a paycheck?</a></li>
+  <li><a href="/what-percentage-of-paycheck-goes-to-taxes/">What percentage of your paycheck goes to taxes?</a></li>
+  <li><a href="/data/paycheck-tax-by-state/">Open dataset: withholding by state (CSV/JSON)</a></li>
+  <li><a href="/how-many-biweekly-paychecks-in-2026/">How many biweekly paychecks in 2026?</a></li>
   <li><a href="/100000-a-year-after-taxes/">$100,000 after taxes</a></li>
 </ul>
 
@@ -642,11 +692,19 @@ ${STATE_CODES.slice(0, 18).map((s) => `<li><a href="/paycheck-calculator/${s.toL
 }
 
 function hubPage({ slug, h1, lede, items, title, desc }) {
+  const groups = new Map();
+  for (const it of items) {
+    const key = it.label.replace(/^\$/, "").charAt(0).toUpperCase();
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(it);
+  }
   const body = `
 <p class="crumb"><a href="/">Home</a></p>
 <h1>${esc(h1)}</h1>
 <p class="lede">${lede}</p>
-<ul class="links">
+<nav class="jump" aria-label="Jump to section"><p>${[...groups.keys()].map((k) => `<a href="#g-${k.toLowerCase()}">${k}</a>`).join(" · ")}</p></nav>
+${[...groups.entries()].map(([k, list]) => `<h2 id="g-${k.toLowerCase()}">${k}</h2>\n<ul class="links">${list.map((i) => `<li><a href="${i.href}">${esc(i.label)}</a></li>`).join("")}</ul>`).join("\n")}
+<ul class="links" hidden>
 ${items.map((i) => `<li><a href="${i.href}">${esc(i.label)}</a></li>`).join("\n")}
 </ul>
 `;
@@ -1283,6 +1341,16 @@ function salaryStatePage(amount, code) {
     : `The same $${amount.toLocaleString("en-US")} in Texas, which has no wage income tax, nets ${fmt(tx.net)} — ${c.net >= tx.net ? `${fmt(c.net - tx.net)} more` : `${fmt(tx.net - c.net)} less`} than ${esc(st.name)}.`
 }</div>
 
+<h2>What ${fmt(amount)} buys at ${esc(st.name)} tax rates</h2>
+<p>Two identical gross salaries, two states. The difference below is entirely the state line:</p>
+<table>
+<thead><tr><th>At ${fmt(amount)}</th><th class="num">${esc(st.name)}</th><th class="num">California</th><th class="num">Difference</th></tr></thead>
+<tbody>
+<tr><td>State income tax</td><td class="num">${c.stateTax === 0 ? "$0" : fmt(c.stateTax)}</td><td class="num">${fmt(computePaycheck(params, amount, "CA", "single").stateTax)}</td><td class="num">${fmt(computePaycheck(params, amount, "CA", "single").stateTax - c.stateTax)}</td></tr>
+<tr><td>Take-home</td><td class="num">${fmt(c.net)}</td><td class="num">${fmt(computePaycheck(params, amount, "CA", "single").net)}</td><td class="num">${fmt(c.net - computePaycheck(params, amount, "CA", "single").net)}</td></tr>
+<tr><td>Monthly</td><td class="num">${fmt(c.net / 12)}</td><td class="num">${fmt(computePaycheck(params, amount, "CA", "single").net / 12)}</td><td class="num">${fmt((c.net - computePaycheck(params, amount, "CA", "single").net) / 12)}</td></tr>
+</tbody></table>
+
 <h2>Where this salary sits in ${esc(st.name)}</h2>
 <p>You keep ${pct(c.net / amount)} of gross. Your top federal bracket is ${pct(pos.fedRate)}${st.type === "brackets" && pos.stRate ? `, and the state bracket at this income is ${pct(pos.stRate)}` : st.type === "none" ? " and there is no state bracket" : ` and the state rate is a flat ${pct(st.rate)}`}. ${d ? `That ${fmt(amount)} gross is ${(amount / d.median * 100).toFixed(0)}% of ${esc(st.name)}'s ${fmt(d.median)} median household income.` : ""}</p>
 <table>
@@ -1294,6 +1362,24 @@ function salaryStatePage(amount, code) {
 </tbody></table>
 
 ${adsSlot()}
+<h2>How ${fmt(amount)} is taxed band by band</h2>
+<p>Federal tax applies only to the income inside each band, so the effective rate stays below the marginal one. After the ${fmt(params.federal.standard_deduction.single)} standard deduction:</p>
+<table>
+<thead><tr><th>Band</th><th class="num">Rate</th><th class="num">Income in band</th><th class="num">Tax</th></tr></thead>
+<tbody>
+${(() => {
+  let floor = 0;
+  const taxable = Math.max(0, amount - params.federal.standard_deduction.single);
+  return params.federal.brackets.single.map((b) => {
+    const top = b.up_to === null ? Infinity : b.up_to;
+    const slice = Math.max(0, Math.min(taxable, top) - floor);
+    const out = slice > 0 ? `<tr><td>${fmt(floor)} – ${b.up_to === null ? "above" : fmt(b.up_to)}</td><td class="num">${pct(b.rate)}</td><td class="num">${fmt(slice)}</td><td class="num">${fmt(slice * b.rate)}</td></tr>` : "";
+    floor = top;
+    return out;
+  }).join("");
+})()}
+</tbody></table>
+<p>Federal income tax at this gross: <strong>${fmt(c.federalTax)}</strong> (${pct(c.federalTax / amount)} of gross). ${st.type === "none" ? `${esc(st.name)} adds nothing on top.` : `${esc(st.name)} adds ${fmt(c.stateTax)}.`} FICA is ${fmt(c.fica)}.</p>
 ${uniqueFactsBlock({ gross: amount, state: code })}
 ${stateSpecificBlock(code, amount)}
 
@@ -1542,6 +1628,10 @@ ${rows.slice(0, 12).map((r) => `<li><a href="/what-percentage-of-paycheck-goes-t
 </ul>
 <p><a href="/what-percentage-of-paycheck-goes-to-taxes/">See every state →</a></p>
 <p><a href="/how-much-tax-is-taken-out-of-paycheck/">The same question in dollars →</a></p>
+<h2>By state, in dollars</h2>
+<ul class="links">
+${rows.map((r) => `<li><a href="/how-much-tax-is-taken-out-of-paycheck-in-${stateSlug(r.c)}/">${esc(r.name)}</a></li>`).join("\n")}
+</ul>
 <ul class="links">
 </ul>
 `,
@@ -1602,7 +1692,7 @@ function dataPage() {
     json: JSON.stringify({ generated: params.meta.generated, taxYear: params.meta.tax_year, method: "single filer, standard deduction, each state's own median household income", rows }, null, 2) + "\n",
     html: layout({
       title: "US Paycheck Tax by State, 2026 — Open Dataset",
-      desc: "Share of gross pay withheld for federal tax, state tax and FICA in all 51 US jurisdictions, computed at each jurisdiction's own median household income. Free CSV and JSON.",
+      desc: "Withholding for federal tax, state tax and FICA in all 51 US jurisdictions, computed at each one's median income. Free CSV and JSON.",
       slug,
       breadcrumb: [{ name: "Home", href: "/" }, { name: "Open data", href: slug }],
       extraHead: jsonld({
@@ -1842,27 +1932,136 @@ ${pages
 </urlset>
 `;
 
-const robots = `User-agent: *
+const robots = `# Paycheck Math — search and AI crawler policy
+# Search engines: allow everything. AI assistants: allow, because being quoted with a source
+# is how this site earns traffic. Training-only crawlers are allowed too; there is no
+# proprietary content here, only computed public data.
+
+User-agent: *
 Allow: /
 
-Sitemap: ${SITE}/sitemap.xml
+# AI search and citation crawlers (explicitly welcome)
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Claude-SearchBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: Applebot-Extended
+Allow: /
+User-agent: CCBot
+Allow: /
+
+# Sitemap
+Sitemap: ${SITE}/sitemap-index.xml
+
+# Machine-readable entry points
+# llms.txt:      ${SITE}/llms.txt
+# openapi.json:  ${SITE}/openapi.json
+# dataset:       ${SITE}/data/paycheck-tax-by-state.json
 `;
 
+const MD_PAGES = [
+  { slug: "/", file: "index.md" },
+  { slug: "/methodology/", file: "methodology.md" },
+  { slug: "/how-much-tax-is-taken-out-of-paycheck/", file: "how-much-tax-is-taken-out-of-paycheck.md" },
+  { slug: "/what-percentage-of-paycheck-goes-to-taxes/", file: "what-percentage-of-paycheck-goes-to-taxes.md" },
+  { slug: "/data/paycheck-tax-by-state/", file: "paycheck-tax-by-state.md" },
+  { slug: "/paycheck-calculator/", file: "paycheck-calculator.md" },
+  { slug: "/salary-to-hourly/", file: "salary-to-hourly.md" },
+  { slug: "/after-taxes/", file: "after-taxes.md" },
+];
+
+function htmlToMarkdown(html) {
+  const main = html.slice(html.indexOf("<main"), html.indexOf("</main>"));
+  return main
+    .replace(/<script[\s\S]*?<\/script>/g, "")
+    .replace(/<style[\s\S]*?<\/style>/g, "")
+    .replace(/<nav[\s\S]*?<\/nav>/g, "")
+    .replace(/<h1[^>]*>([\s\S]*?)<\/h1>/g, "\n# $1\n")
+    .replace(/<h2[^>]*>([\s\S]*?)<\/h2>/g, "\n## $1\n")
+    .replace(/<h3[^>]*>([\s\S]*?)<\/h3>/g, "\n### $1\n")
+    .replace(/<li[^>]*>([\s\S]*?)<\/li>/g, "- $1\n")
+    .replace(/<table[^>]*>([\s\S]*?)<\/table>/g, (m, inner) => {
+      const rows = [...inner.matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/g)]
+        .map((r) => [...r[1].matchAll(/<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/g)].map((c) => c[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim()))
+        .filter((r) => r.length);
+      if (!rows.length) return "";
+      const width = Math.max(...rows.map((r) => r.length));
+      const line = (r) => "| " + r.concat(Array(width - r.length).fill("")).join(" | ") + " |";
+      return "\n\n" + line(rows[0]) + "\n|" + Array(width).fill("---").join("|") + "|\n" + rows.slice(1).map(line).join("\n") + "\n\n";
+    })
+    .replace(/<a [^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g, "[$2]($1)")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&minus;/g, "-").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function writeMarkdownPages() {
+  for (const page of MD_PAGES) {
+    const built = pages.find((x) => x.slug === page.slug);
+    if (!built) continue;
+    const url = SITE + page.slug;
+    const front = `# Paycheck Math\n\n> Machine-readable version of ${url}\n> Generated ${params.meta.generated}. Rates: ${params.meta.tax_year} federal (IRS Rev. Proc. 2025-32), FICA wage base ${fmt(params.fica.ss_wage_base)}, state tables from the Tax Foundation 2026 table with verified 2026 overrides.\n\n`;
+    files.set(path.join(OUT, BASE_PATH, page.file), front + htmlToMarkdown(built.html) + "\n");
+  }
+}
 const llms = `# Paycheck Math
 
-> Free salary, hourly and take-home pay calculators for the United States, built on ${params.meta.tax_year} federal brackets and state income tax rules.
+> Free salary, hourly and take-home pay calculators for the United States. Every figure is
+> computed from published rates: ${params.meta.tax_year} federal brackets (IRS Rev. Proc. 2025-32),
+> FICA with a ${fmt(params.fica.ss_wage_base)} Social Security wage base, and state rules from the Tax
+> Foundation 2026 table with 2026 changes verified against state revenue departments.
+
+## What this site answers
+
+- How much an hourly wage is per year, and what it is worth after tax
+- What a salary is per hour, per month and per biweekly check
+- How much tax is taken out of a paycheck, by state
+- What percentage of a paycheck goes to taxes, by state
+- How many weekly / biweekly / semi-monthly / monthly paychecks fall in ${TODAY.getUTCFullYear()}
+- Take-home pay in every state, at that state's own median income
 
 ## Core pages
+- ${SITE}/ — calculators and the entry point
 - ${SITE}/paycheck-calculator/ — take-home pay by state
-- ${SITE}/salary-to-hourly/ — salary to hourly conversion
-- ${SITE}/hourly-to-salary/ — hourly to salary conversion
+- ${SITE}/how-much-tax-is-taken-out-of-paycheck/ — withholding by state, dollars
+- ${SITE}/what-percentage-of-paycheck-goes-to-taxes/ — withholding by state, percentage
+- ${SITE}/salary-to-hourly/ and ${SITE}/hourly-to-salary/ — conversion tables
 - ${SITE}/after-taxes/ — salary after tax
 - ${SITE}/methodology/ — every rate and its source
 
-## Facts
-- Federal standard deduction ${params.meta.tax_year}: ${fmt(params.federal.standard_deduction.single)} single, ${fmt(params.federal.standard_deduction.married)} married.
-- FICA: Social Security ${pct(params.fica.ss_rate)} up to ${fmt(params.fica.ss_wage_base)}, Medicare ${pct(params.fica.medicare_rate)}.
-- Pages: ${pages.length}.
+## Data and machine-readable endpoints
+- ${SITE}/data/paycheck-tax-by-state/ — open dataset, 51 jurisdictions
+- ${SITE}/data/paycheck-tax-by-state.csv — CSV
+- ${SITE}/data/paycheck-tax-by-state.json — JSON
+- ${SITE}/openapi.json — OpenAPI 3.1 description of the data endpoints
+- ${SITE}/assets/tax-params.json — the exact rate table the engine uses
+
+## Key facts an answer should quote
+- Federal standard deduction ${params.meta.tax_year}: ${fmt(params.federal.standard_deduction.single)} single,
+  ${fmt(params.federal.standard_deduction.married)} married, ${fmt(params.federal.standard_deduction.hoh)} head of household.
+- FICA: Social Security ${pct(params.fica.ss_rate)} up to ${fmt(params.fica.ss_wage_base)}; Medicare ${pct(params.fica.medicare_rate)}
+  plus ${pct(params.fica.additional_medicare_rate)} above ${fmt(params.fica.additional_threshold.single)} (single).
+- ${NO_TAX_STATES.length} jurisdictions have no wage income tax: ${NO_TAX_STATES.map((c) => params.states[c].name).join(", ")}.
+- Six states still use 2025 bracket widths because 2026 was unpublished at compile time, and their
+  pages say so: Arkansas, California, Idaho, Massachusetts, North Dakota, Vermont.
+
+## Markdown versions of the main pages
+${MD_PAGES.map((m) => `- ${SITE}/${m.file}`).join("\n")}
+
+## Attribution
+Reuse the data with credit to Paycheck Math and a link to the dataset page. Estimates only; not tax advice.
 `;
 
 /* write or check */
@@ -1879,8 +2078,77 @@ for (const p of pages) {
   files.set(file, p.html);
 }
 files.set(path.join(OUT, BASE_PATH, "sitemap.xml"), sitemap);
+files.set(path.join(OUT, BASE_PATH, "sitemap-index.xml"), `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap><loc>${SITE}/sitemap.xml</loc><lastmod>${params.meta.generated}</lastmod></sitemap>
+</sitemapindex>
+`);
 files.set(path.join(OUT, BASE_PATH, "robots.txt"), robots);
 files.set(path.join(OUT, BASE_PATH, "llms.txt"), llms);
+const apiSpec = JSON.stringify({
+  openapi: "3.1.0",
+  info: {
+    title: "Paycheck Math take-home pay API",
+    version: String(params.meta.tax_year),
+    description: "Compute US take-home pay from gross salary, state and filing status. Every rate is the one published on the site; see /methodology/.",
+    license: { name: "CC BY 4.0", url: "https://creativecommons.org/licenses/by/4.0/" },
+  },
+  servers: [{ url: SITE }],
+  paths: {
+    "/assets/tax-params.json": {
+      get: {
+        operationId: "getTaxParams",
+        summary: "Every federal bracket, FICA rate and state rule the engine uses",
+        responses: { "200": { description: "Tax parameter table", content: { "application/json": { schema: { type: "object" } } } } },
+      },
+    },
+    "/data/paycheck-tax-by-state.json": {
+      get: {
+        operationId: "getPaycheckTaxByState",
+        summary: "Withholding and take-home for all 51 jurisdictions at each one's median income",
+        responses: {
+          "200": {
+            description: "51 rows",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    taxYear: { type: "integer" },
+                    rows: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          state: { type: "string" },
+                          code: { type: "string" },
+                          medianIncome: { type: "integer" },
+                          withheld: { type: "integer" },
+                          keep: { type: "integer" },
+                          withheldShare: { type: "number" },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "x-calculation": {
+    formula: "net = gross - federalTax - stateTax - socialSecurity - medicare",
+    federalTax: "progressive brackets from /assets/tax-params.json applied to (gross - standard deduction)",
+    socialSecurity: "0.062 * min(gross, wageBase)",
+    medicare: "0.0145 * gross (+0.009 above the additional threshold)",
+  },
+}, null, 2) + "\n";
+files.set(path.join(OUT, BASE_PATH, "openapi.json"), apiSpec);
+writeMarkdownPages();
+
+
 files.set(path.join(OUT, BASE_PATH, "data/paycheck-tax-by-state.csv"), dataAsset.csv);
 files.set(path.join(OUT, BASE_PATH, "data/paycheck-tax-by-state.json"), dataAsset.json);
 files.set(path.join(OUT, BASE_PATH, "d3b27220b2e09fc3488db3f7724ae3cc.txt"), "d3b27220b2e09fc3488db3f7724ae3cc\n");
@@ -1907,8 +2175,13 @@ if (write && fs.existsSync(OUT)) {
   walk(OUT);
 }
 
+const HUB_SLUGS = new Set(["/", "/paycheck-calculator/", "/salary-to-hourly/", "/hourly-to-salary/", "/after-taxes/", "/hourly-after-taxes/", "/how-much-tax-is-taken-out-of-paycheck/", "/what-percentage-of-paycheck-goes-to-taxes/", "/methodology/", "/data/paycheck-tax-by-state/"]);
 for (const [file, content] of files) {
-  if (file.endsWith(".html")) files.set(file, prefixAssets(content));
+  if (!file.endsWith(".html")) continue;
+  const slug = "/" + path.relative(path.join(OUT, BASE_PATH), path.dirname(file)).split(path.sep).join("/") + (path.dirname(file).endsWith(BASE_PATH) ? "/" : "/");
+  const norm = slug === "/" ? "/" : slug;
+  const nav = HUB_SLUGS.has(norm) || HUB_SLUGS.has(norm.replace(/\/$/, "/")) ? CLUSTER_NAV : "";
+  files.set(file, prefixAssets(content.replace("@@CRITICAL_CSS@@", css).replace("CLUSTER_NAV_PLACEHOLDER_MARKER", nav)));
 }
 
 let mismatches = 0;
